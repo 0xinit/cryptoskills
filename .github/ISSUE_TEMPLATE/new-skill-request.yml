@@ -1,0 +1,84 @@
+name: New Skill Request
+description: Request a new protocol or tool skill
+title: "[Skill Request] "
+labels: ["skill-request"]
+body:
+  - type: input
+    id: protocol
+    attributes:
+      label: Protocol / Tool Name
+      description: Name of the protocol or tool
+      placeholder: e.g., Uniswap, Foundry, LayerZero
+    validations:
+      required: true
+
+  - type: dropdown
+    id: chain
+    attributes:
+      label: Primary Chain
+      options:
+        - Ethereum
+        - Solana
+        - Arbitrum
+        - Optimism
+        - Base
+        - Monad
+        - MegaETH
+        - StarkNet
+        - zkSync
+        - Polygon
+        - Multichain
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - DeFi
+        - Infrastructure
+        - Dev Tools
+        - Trading
+        - Oracles
+        - Cross-Chain
+        - NFT & Tokens
+        - Security
+        - L2 & Alt-L1
+        - Frontend
+        - AI Agents
+        - DevOps
+    validations:
+      required: true
+
+  - type: textarea
+    id: blind-spots
+    attributes:
+      label: What do AI agents get wrong about this?
+      description: List specific things LLMs hallucinate or get wrong about this protocol
+      placeholder: |
+        - Agents use outdated V2 API instead of V3
+        - Wrong contract addresses on Arbitrum
+        - Gas estimation is 100x too high
+    validations:
+      required: true
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Key Resources
+      description: Links to official docs, SDKs, and repos
+      placeholder: |
+        - Docs: https://docs.protocol.com
+        - SDK: https://github.com/protocol/sdk
+        - Addresses: https://docs.protocol.com/addresses
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd be willing to write this skill myself

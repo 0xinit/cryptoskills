@@ -1,0 +1,66 @@
+name: Validate Skills
+
+on:
+  pull_request:
+    paths: ['skills/**']
+  push:
+    branches: [main]
+    paths: ['skills/**']
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate modified skills have SKILL.md
+        run: |
+          exit_code=0
+          for skill_dir in skills/*/; do
+            skill_name=$(basename "$skill_dir")
+            if [ ! -f "$skill_dir/SKILL.md" ]; then
+              echo "ERROR: $skill_name/ has no SKILL.md"
+              exit_code=1
+              continue
+            fi
+
+            # Check frontmatter exists
+            if ! head -1 "$skill_dir/SKILL.md" | grep -q "^---"; then
+              echo "ERROR: $skill_name/SKILL.md missing YAML frontmatter"
+              exit_code=1
+              continue
+            fi
+
+            # Check required frontmatter fields
+            frontmatter=$(sed -n '/^---$/,/^---$/p' "$skill_dir/SKILL.md")
+            if ! echo "$frontmatter" | grep -q "^name:"; then
+              echo "ERROR: $skill_name/SKILL.md missing 'name' in frontmatter"
+              exit_code=1
+            fi
+            if ! echo "$frontmatter" | grep -q "^description:"; then
+              echo "ERROR: $skill_name/SKILL.md missing 'description' in frontmatter"
+              exit_code=1
+            fi
+
+            echo "OK: $skill_name"
+          done
+          exit $exit_code
+
+      - name: Check marketplace.json is valid JSON
+        run: |
+          if [ -f .claude-plugin/marketplace.json ]; then
+            python3 -m json.tool .claude-plugin/marketplace.json > /dev/null
+            echo "marketplace.json is valid JSON"
+          fi
+
+      - name: Build registry
+        run: |
+          if command -v npx &> /dev/null; then
+            npx tsx scripts/build-registry.ts
+          else
+            echo "Skipping registry build (tsx not available)"
+          fi
