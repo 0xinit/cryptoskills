@@ -1,0 +1,12 @@
+{
+  "name": "cryptoskills",
+  "owner": {
+    "name": "CryptoSkills",
+    "email": "team@cryptoskills.sh"
+  },
+  "metadata": {
+    "description": "Agent skills for crypto development — DeFi, infrastructure, security, dev tools, and more across all chains. Covers Ethereum, Solana, L2s, alt-L1s, and cross-chain protocols.",
+    "pluginRoot": "./skills"
+  },
+  "plugins": []
+}
