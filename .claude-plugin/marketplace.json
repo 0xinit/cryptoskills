@@ -8,5 +8,186 @@
     "description": "Agent skills for crypto development — DeFi, infrastructure, security, dev tools, and more across all chains. Covers Ethereum, Solana, L2s, alt-L1s, and cross-chain protocols.",
     "pluginRoot": "./skills"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "code-recon",
+      "source": "./skills/code-recon",
+      "description": "Deep architectural context building for security audits. Use when conducting security reviews, building codebase understanding, mapping trust boundaries, or preparing for vulnerability analysis. Inspired by Trail of Bits methodology.",
+      "category": "Security"
+    },
+    {
+      "name": "coingecko",
+      "source": "./skills/coingecko",
+      "description": "Complete CoinGecko Solana API integration for token prices, DEX pool data, OHLCV charts, trades, and market analytics. Use for building trading bots, portfolio trackers, price feeds, and on-chain data applications.",
+      "category": "Data & Analytics"
+    },
+    {
+      "name": "debridge",
+      "source": "./skills/debridge",
+      "description": "Complete deBridge Protocol SDK for building cross-chain bridges, message passing, and token transfers on Solana. Use when building cross-chain applications, bridging assets between Solana and EVM chains, or implementing trustless external calls.",
+      "category": "Cross-Chain"
+    },
+    {
+      "name": "dflow",
+      "source": "./skills/dflow",
+      "description": "Complete DFlow trading protocol SDK - the single source of truth for integrating DFlow on Solana. Covers spot trading, prediction markets, Swap API, Metadata API, WebSocket streaming, and all DFlow tools.",
+      "category": "Trading"
+    },
+    {
+      "name": "drift",
+      "source": "./skills/drift",
+      "description": "Complete Drift Protocol SDK for building perpetual futures, spot trading, and DeFi applications on Solana. Use when building trading bots, integrating Drift markets, managing positions, or working with vaults.",
+      "category": "DeFi"
+    },
+    {
+      "name": "glam",
+      "source": "./skills/glam",
+      "description": "Solana vault management via GLAM Protocol. Triggers: glam, glam-cli, glam-sdk, vault create/manage, tokenized vault, share class, DeFi vault, treasury, asset management, access control, delegate permissions, Jupiter swap, Drift perpetuals/spot/vaults, Kamino lending/borrow/vaults/farms, staking (Marinade/native/SPL/Sanctum/LST), cross-chain USDC (CCTP), timelock, subscription/redemption, NAV pricing, token transfer. Supports CLI and TypeScript SDK.",
+      "category": "DeFi"
+    },
+    {
+      "name": "helius",
+      "source": "./skills/helius",
+      "description": "Comprehensive guide for Helius - Solana's leading RPC and API infrastructure provider. Covers RPC nodes, DAS (Digital Asset Standard) API, Enhanced Transactions, Priority Fees, Webhooks, ZK Compression, LaserStream gRPC, and the Helius SDK for building high-performance Solana applications",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "jupiter",
+      "source": "./skills/jupiter",
+      "description": "Comprehensive guidance for integrating Jupiter APIs (Ultra Swap, Lend, Perps, Trigger, Recurring, Tokens, Price, Portfolio, Prediction Markets, Send, Studio, Lock, Routing). Use for endpoint selection, integration flows, error handling, and production hardening.",
+      "category": "DeFi"
+    },
+    {
+      "name": "kamino",
+      "source": "./skills/kamino",
+      "description": "Complete guide for Kamino Finance - Solana's leading DeFi protocol for lending, borrowing, liquidity management, and leverage trading. Covers klend-sdk (lending), kliquidity-sdk (automated liquidity strategies), scope-sdk (oracle aggregator), multiply/leverage operations, vaults, and obligation orders.",
+      "category": "DeFi"
+    },
+    {
+      "name": "light-protocol",
+      "source": "./skills/light-protocol",
+      "description": "Complete guide for Light Protocol on Solana - includes ZK Compression for rent-free compressed tokens and PDAs using zero-knowledge proofs, and the Light Token Program for high-performance token standard (200x cheaper than SPL). Covers TypeScript SDK, JSON RPC methods, and complete integration patterns.",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "lulo",
+      "source": "./skills/lulo",
+      "description": "Complete guide for Lulo - Solana's premier lending aggregator. Covers API integration for deposits, withdrawals, balance queries, Protected/Boosted deposits, Custom deposits, and automated yield optimization across Kamino, Drift, MarginFi, and Jupiter.",
+      "category": "DeFi"
+    },
+    {
+      "name": "magicblock",
+      "source": "./skills/magicblock",
+      "description": "Complete guide for MagicBlock Ephemeral Rollups - high-performance Solana execution with sub-10ms latency, gasless transactions, and Solana Plugins. Use when building real-time games, high-frequency trading, or any application requiring ultra-low latency on Solana.",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "marginfi",
+      "source": "./skills/marginfi",
+      "description": "Complete guide for Marginfi - Solana's decentralized lending protocol for lending, borrowing, leveraged positions(looping) and flash loans. Covers account creation, deposits, borrows, repayments, withdrawals, flash loans, and leveraged positions using the @mrgnlabs/marginfi-client-v2 SDK.",
+      "category": "DeFi"
+    },
+    {
+      "name": "metaplex",
+      "source": "./skills/metaplex",
+      "description": "Complete Metaplex Protocol guide for Solana NFTs and digital assets. Covers Core (next-gen NFTs), Token Metadata, Bubblegum (compressed NFTs), Candy Machine, Genesis (token launches), MPL-Hybrid, Inscriptions, DAS API, and the Umi framework. The single source of truth for all Metaplex integrations.",
+      "category": "NFT & Tokens"
+    },
+    {
+      "name": "metengine",
+      "source": "./skills/metengine",
+      "description": "Real-time smart money analytics API for Polymarket prediction markets, Hyperliquid perpetual futures, and Meteora Solana LP/AMM pools. 63 endpoints. Pay-per-request via x402 on Solana Mainnet USDC. No API keys.",
+      "category": "Data & Analytics"
+    },
+    {
+      "name": "meteora",
+      "source": "./skills/meteora",
+      "description": "Complete Meteora DeFi SDK suite for building liquidity pools, AMMs, bonding curves, vaults, token launches, and zap operations on Solana. Use when integrating DLMM, DAMM v2, DAMM v1, Dynamic Bonding Curves, Alpha Vaults, Zap, or Stake-for-Fee functionality.",
+      "category": "DeFi"
+    },
+    {
+      "name": "orca",
+      "source": "./skills/orca",
+      "description": "Complete guide for Orca - Solana's leading concentrated liquidity AMM (CLMM). Covers Whirlpools SDK for swaps, liquidity provision, pool creation, position management, and fee harvesting on Solana and Eclipse networks.",
+      "category": "DeFi"
+    },
+    {
+      "name": "pinocchio",
+      "source": "./skills/pinocchio",
+      "description": "Comprehensive guide for building high-performance Solana programs using Pinocchio - the zero-dependency, zero-copy framework. Covers account validation, CPI patterns, optimization techniques, and migration from Anchor.",
+      "category": "Dev Tools"
+    },
+    {
+      "name": "pumpfun",
+      "source": "./skills/pumpfun",
+      "description": "Complete PumpFun Protocol guide for building token launches, bonding curves, and AMM integrations on Solana. Covers Pump Program (token creation, buy/sell on bonding curves), PumpSwap AMM (liquidity pools, swaps), fee structures, creator fees, and SDK integration.",
+      "category": "DeFi"
+    },
+    {
+      "name": "pyth",
+      "source": "./skills/pyth",
+      "description": "Complete guide for Pyth Network - decentralized oracle providing real-time price feeds for DeFi. Covers price feed integration, confidence intervals, EMA prices, on-chain CPI, off-chain fetching, and streaming updates for Solana applications.",
+      "category": "Oracles"
+    },
+    {
+      "name": "ranger-finance",
+      "source": "./skills/ranger-finance",
+      "description": "Ranger Finance SDK for building perpetual futures trading applications on Solana. The first Solana Perps Aggregator - aggregates liquidity across multiple perp protocols (Drift, Flash, Adrena, Jupiter). Use when integrating perps trading, smart order routing, position management, or building AI trading agents.",
+      "category": "Trading"
+    },
+    {
+      "name": "raydium",
+      "source": "./skills/raydium",
+      "description": "Complete Raydium Protocol SDK - the single source of truth for integrating Raydium on Solana. Covers SDK, Trade API, CLMM, CPMM, AMM pools, LaunchLab token launches, farming, CPI integration, and all Raydium tools.",
+      "category": "DeFi"
+    },
+    {
+      "name": "sanctum",
+      "source": "./skills/sanctum",
+      "description": "Complete Sanctum SDK for liquid staking, LST swaps, and Infinity pool operations on Solana. Use when working with LSTs (mSOL, jitoSOL, bSOL, INF), staking SOL, swapping between liquid staking tokens, or integrating Sanctum's liquidity infrastructure.",
+      "category": "DeFi"
+    },
+    {
+      "name": "solana-agent-kit",
+      "source": "./skills/solana-agent-kit",
+      "description": "Comprehensive guide for building AI agents that interact with Solana blockchain using SendAI's Solana Agent Kit. Covers 60+ actions, LangChain/Vercel AI integration, MCP server setup, and autonomous agent patterns.",
+      "category": "AI Agents"
+    },
+    {
+      "name": "solana-kit",
+      "source": "./skills/solana-kit",
+      "description": "Complete guide for @solana/kit - the modern, tree-shakeable, zero-dependency JavaScript SDK from Anza. Covers RPC connections, signers, transaction building with pipe, signing, sending, and account fetching with full TypeScript support.",
+      "category": "Dev Tools"
+    },
+    {
+      "name": "solana-kit-migration",
+      "source": "./skills/solana-kit-migration",
+      "description": "Helps developers understand when to use @solana/kit vs @solana/web3.js (v1), provides migration guidance, API mappings, and handles edge cases for Solana JavaScript SDK transitions",
+      "category": "Dev Tools"
+    },
+    {
+      "name": "squads",
+      "source": "./skills/squads",
+      "description": "Complete guide for Squads Protocol - Solana's leading smart account and multisig infrastructure. Covers Squads V4 Multisig for team treasury management, Smart Account Program for account abstraction and programmable wallets, and Grid for stablecoin rails and fintech infrastructure.",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "surfpool",
+      "source": "./skills/surfpool",
+      "description": "Complete Surfpool development environment for Solana - drop-in replacement for solana-test-validator with mainnet forking, cheatcodes, Infrastructure as Code, and Surfpool Studio. The fastest way to develop and test Solana programs.",
+      "category": "DevOps"
+    },
+    {
+      "name": "switchboard",
+      "source": "./skills/switchboard",
+      "description": "Complete Switchboard Oracle Protocol SDK for Solana - the permissionless oracle solution for price feeds, on-demand data, VRF randomness, and real-time streaming via Surge. Covers TypeScript SDK, Rust integration, Oracle Quotes, and all Switchboard tools.",
+      "category": "Oracles"
+    },
+    {
+      "name": "vulnhunter",
+      "source": "./skills/vulnhunter",
+      "description": "Security vulnerability detection and variant analysis skill. Use when hunting for dangerous APIs, footgun patterns, error-prone configurations, and vulnerability variants across codebases. Combines sharp edges detection with variant hunting methodology.",
+      "category": "Security"
+    }
+  ]
 }
