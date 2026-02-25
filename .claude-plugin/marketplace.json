@@ -10,6 +10,18 @@
   },
   "plugins": [
     {
+      "name": "aave",
+      "source": "./skills/aave",
+      "description": "Aave V3 lending protocol integration — supply, borrow, repay, withdraw, flash loans, E-Mode, and health factor monitoring. Covers IPool interface in Solidity and viem-based TypeScript for reading protocol state, executing transactions, and managing positions across Ethereum, Arbitrum, Optimism, Base, and Polygon.",
+      "category": "DeFi"
+    },
+    {
+      "name": "chainlink",
+      "source": "./skills/chainlink",
+      "description": "Chainlink oracle integration — price feeds (AggregatorV3Interface), VRF v2.5 verifiable randomness, Automation (Keepers) for conditional execution, and CCIP cross-chain messaging. Covers staleness checks, decimal normalization, subscription management, and upkeep patterns across Ethereum, Arbitrum, and Base.",
+      "category": "Infrastructure"
+    },
+    {
       "name": "code-recon",
       "source": "./skills/code-recon",
       "description": "Deep architectural context building for security audits. Use when conducting security reviews, building codebase understanding, mapping trust boundaries, or preparing for vulnerability analysis. Inspired by Trail of Bits methodology.",
@@ -20,6 +32,12 @@
       "source": "./skills/coingecko",
       "description": "Complete CoinGecko Solana API integration for token prices, DEX pool data, OHLCV charts, trades, and market analytics. Use for building trading bots, portfolio trackers, price feeds, and on-chain data applications.",
       "category": "Data & Analytics"
+    },
+    {
+      "name": "contract-addresses",
+      "source": "./skills/contract-addresses",
+      "description": "Verified contract addresses for major EVM protocols across Ethereum, Arbitrum, Optimism, Base, and Polygon. Covers tokens, DEXes, lending, bridges, and infrastructure. Use as a reference when building integrations — every address is checksummed and should be verified onchain before use in production.",
+      "category": "Infrastructure"
     },
     {
       "name": "debridge",
@@ -38,6 +56,36 @@
       "source": "./skills/drift",
       "description": "Complete Drift Protocol SDK for building perpetual futures, spot trading, and DeFi applications on Solana. Use when building trading bots, integrating Drift markets, managing positions, or working with vaults.",
       "category": "DeFi"
+    },
+    {
+      "name": "eip-reference",
+      "source": "./skills/eip-reference",
+      "description": "Quick reference for essential EIPs and ERCs. Covers token standards, signature schemes, account abstraction, and chain-level EIPs with implementation patterns. Use when you need the correct interface, gotcha, or specification detail for any major Ethereum standard.",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "ens",
+      "source": "./skills/ens",
+      "description": "ENS (Ethereum Name Service) development — name resolution, registration via commit-reveal, text/address records, reverse resolution, avatar retrieval, subdomains, and Name Wrapper integration. Covers viem's built-in ENS actions, resolver patterns, CCIP-Read for offchain data, and contract interactions with the ENS registry on Ethereum mainnet.",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "eth-concepts",
+      "source": "./skills/eth-concepts",
+      "description": "Core Ethereum development concepts including gas mechanics, transaction types, storage layout, ABI encoding, and EVM execution model. Use as a reference when building on Ethereum or EVM chains.",
+      "category": "Infrastructure"
+    },
+    {
+      "name": "evm-testing",
+      "source": "./skills/evm-testing",
+      "description": "Comprehensive testing patterns for EVM smart contracts. Covers unit tests, fuzz testing, invariant testing, fork testing, and gas optimization with Foundry and Hardhat. Focuses on patterns and techniques — not CLI usage or project setup.",
+      "category": "Dev Tools"
+    },
+    {
+      "name": "foundry",
+      "source": "./skills/foundry",
+      "description": "Foundry toolkit for Solidity development — forge (build/test), cast (chain interaction), anvil (local node), and chisel (REPL). Covers project setup, testing patterns (unit, fuzz, invariant, fork), deployment via forge script, contract verification, gas optimization, and debugging. Works on any EVM chain.",
+      "category": "Dev Tools"
     },
     {
       "name": "glam",
@@ -61,6 +109,12 @@
       "name": "kamino",
       "source": "./skills/kamino",
       "description": "Complete guide for Kamino Finance - Solana's leading DeFi protocol for lending, borrowing, liquidity management, and leverage trading. Covers klend-sdk (lending), kliquidity-sdk (automated liquidity strategies), scope-sdk (oracle aggregator), multiply/leverage operations, vaults, and obligation orders.",
+      "category": "DeFi"
+    },
+    {
+      "name": "lido",
+      "source": "./skills/lido",
+      "description": "Lido liquid staking protocol — stake ETH to receive stETH, wrap to wstETH for DeFi composability, manage withdrawal queue requests, read share rates and protocol state. Covers rebasing token pitfalls, 1-2 wei transfer rounding, wstETH/stETH conversion, and integration patterns for lending protocols and vaults.",
       "category": "DeFi"
     },
     {
@@ -106,6 +160,12 @@
       "category": "DeFi"
     },
     {
+      "name": "openzeppelin",
+      "source": "./skills/openzeppelin",
+      "description": "OpenZeppelin Contracts v5 for building secure smart contracts. Covers ERC-20/721/1155 tokens, access control (Ownable, AccessControl, AccessManager), security utilities (ReentrancyGuard, Pausable, SafeERC20), upgradeable contracts (UUPS, Initializable), and Defender integration. Use when writing Solidity contracts that need battle-tested, audited building blocks.",
+      "category": "Infrastructure"
+    },
+    {
       "name": "orca",
       "source": "./skills/orca",
       "description": "Complete guide for Orca - Solana's leading concentrated liquidity AMM (CLMM). Covers Whirlpools SDK for swaps, liquidity provision, pool creation, position management, and fee harvesting on Solana and Eclipse networks.",
@@ -142,6 +202,12 @@
       "category": "DeFi"
     },
     {
+      "name": "safe",
+      "source": "./skills/safe",
+      "description": "Safe (formerly Gnosis Safe) multisig SDK for creating, managing, and executing multi-signature transactions. Covers Safe{Core} SDK (protocol-kit, api-kit, relay-kit), deploying new Safes, proposing and confirming transactions, modules and guards, EIP-1271 signature validation, and Safe Transaction Service integration. Works on Ethereum, Arbitrum, Base, Optimism, Polygon, and 15+ EVM chains.",
+      "category": "Infrastructure"
+    },
+    {
       "name": "sanctum",
       "source": "./skills/sanctum",
       "description": "Complete Sanctum SDK for liquid staking, LST swaps, and Infinity pool operations on Solana. Use when working with LSTs (mSOL, jitoSOL, bSOL, INF), staking SOL, swapping between liquid staking tokens, or integrating Sanctum's liquidity infrastructure.",
@@ -166,6 +232,12 @@
       "category": "Dev Tools"
     },
     {
+      "name": "solidity-security",
+      "source": "./skills/solidity-security",
+      "description": "Comprehensive Solidity security patterns, vulnerability prevention, and audit preparation. Covers reentrancy, access control, token decimals, oracle manipulation, vault inflation, proxy safety, EIP-712 signatures, MEV protection, and pre-deploy checklists. Every pattern includes wrong vs correct code.",
+      "category": "Security"
+    },
+    {
       "name": "squads",
       "source": "./skills/squads",
       "description": "Complete guide for Squads Protocol - Solana's leading smart account and multisig infrastructure. Covers Squads V4 Multisig for team treasury management, Smart Account Program for account abstraction and programmable wallets, and Grid for stablecoin rails and fintech infrastructure.",
@@ -182,6 +254,18 @@
       "source": "./skills/switchboard",
       "description": "Complete Switchboard Oracle Protocol SDK for Solana - the permissionless oracle solution for price feeds, on-demand data, VRF randomness, and real-time streaming via Surge. Covers TypeScript SDK, Rust integration, Oracle Quotes, and all Switchboard tools.",
       "category": "Oracles"
+    },
+    {
+      "name": "uniswap",
+      "source": "./skills/uniswap",
+      "description": "Uniswap V3 and V4 DEX integration — exact input/output swaps via SwapRouter02 and UniversalRouter, concentrated liquidity positions via NonfungiblePositionManager, V4 hook architecture with PoolManager singleton, pool state reads (slot0, ticks, TWAP), and Permit2 token approvals. Covers Ethereum, Arbitrum, Base, and Optimism.",
+      "category": "DeFi"
+    },
+    {
+      "name": "viem",
+      "source": "./skills/viem",
+      "description": "TypeScript interface for Ethereum and EVM chains. Use for reading blockchain state, sending transactions, interacting with contracts, encoding/decoding ABI data, and building dApp backends. Transport-based architecture with full type safety over ABIs.",
+      "category": "Dev Tools"
     },
     {
       "name": "vulnhunter",
