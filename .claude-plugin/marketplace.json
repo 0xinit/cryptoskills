@@ -52,10 +52,22 @@
       "category": "Data & Analytics"
     },
     {
+      "name": "compound",
+      "source": "./skills/compound",
+      "description": "Compound V3 (Comet) lending protocol — supply, borrow, repay, withdraw, liquidation, governance proposals, and cross-chain Comet deployments. Covers Comet interface (single-asset borrowing), Configurator, Bulker for batched operations, and COMP governance across Ethereum, Arbitrum, Base, Optimism, and Polygon.",
+      "category": "DeFi"
+    },
+    {
       "name": "contract-addresses",
       "source": "./skills/contract-addresses",
       "description": "Verified contract addresses for major EVM protocols across Ethereum, Arbitrum, Optimism, Base, and Polygon. Covers tokens, DEXes, lending, bridges, and infrastructure. Use as a reference when building integrations — every address is checksummed and should be verified onchain before use in production.",
       "category": "Infrastructure"
+    },
+    {
+      "name": "curve",
+      "source": "./skills/curve",
+      "description": "Curve Finance AMM — StableSwap pools for pegged assets, CryptoSwap (Tricrypto) for volatile pairs, crvUSD stablecoin with LLAMMA soft-liquidation, gauge voting for CRV emissions, factory pools, and LP token staking. Covers pool interfaces (exchange, add_liquidity, remove_liquidity), Router for optimal routing, and gauge system across Ethereum mainnet.",
+      "category": "DeFi"
     },
     {
       "name": "debridge",
@@ -73,6 +85,12 @@
       "name": "drift",
       "source": "./skills/drift",
       "description": "Complete Drift Protocol SDK for building perpetual futures, spot trading, and DeFi applications on Solana. Use when building trading bots, integrating Drift markets, managing positions, or working with vaults.",
+      "category": "DeFi"
+    },
+    {
+      "name": "eigenlayer",
+      "source": "./skills/eigenlayer",
+      "description": "EigenLayer restaking protocol — stake ETH and LSTs to secure AVSs (Actively Validated Services), operator registration and delegation, reward claiming, and slashing conditions. Covers StrategyManager, DelegationManager, AVSDirectory, and the restaking lifecycle on Ethereum mainnet.",
       "category": "DeFi"
     },
     {
@@ -118,6 +136,12 @@
       "category": "Infrastructure"
     },
     {
+      "name": "hyperlane",
+      "source": "./skills/hyperlane",
+      "description": "Hyperlane permissionless interoperability — Mailbox messaging, Interchain Security Modules (ISM), Warp Routes for token bridging, hooks, interchain accounts, and permissionless deployment to any chain. Covers Hyperlane SDK, contract interfaces, and custom security configurations.",
+      "category": "Cross-Chain"
+    },
+    {
       "name": "jupiter",
       "source": "./skills/jupiter",
       "description": "Comprehensive guidance for integrating Jupiter APIs (Ultra Swap, Lend, Perps, Trigger, Recurring, Tokens, Price, Portfolio, Prediction Markets, Send, Studio, Lock, Routing). Use for endpoint selection, integration flows, error handling, and production hardening.",
@@ -128,6 +152,12 @@
       "source": "./skills/kamino",
       "description": "Complete guide for Kamino Finance - Solana's leading DeFi protocol for lending, borrowing, liquidity management, and leverage trading. Covers klend-sdk (lending), kliquidity-sdk (automated liquidity strategies), scope-sdk (oracle aggregator), multiply/leverage operations, vaults, and obligation orders.",
       "category": "DeFi"
+    },
+    {
+      "name": "layerzero",
+      "source": "./skills/layerzero",
+      "description": "LayerZero V2 cross-chain messaging — OApp framework, OFT (Omnichain Fungible Token), DVN configuration, executor setup, message options, and cross-chain deployment patterns. Covers lz-oapp contracts, EndpointV2 interface, message lifecycle, and security configuration across Ethereum, Arbitrum, Base, Optimism, and Polygon.",
+      "category": "Cross-Chain"
     },
     {
       "name": "lido",
@@ -190,6 +220,12 @@
       "category": "L2 & Alt-L1"
     },
     {
+      "name": "morpho",
+      "source": "./skills/morpho",
+      "description": "Morpho Blue lending protocol — permissionless market creation, MetaMorpho vaults for curated lending, isolated lending markets with custom parameters (LLTV, oracle, IRM), supply, borrow, liquidation, and market management. Covers Morpho Blue singleton contract, MetaMorpho vault interface, and market ID derivation on Ethereum mainnet.",
+      "category": "DeFi"
+    },
+    {
       "name": "openzeppelin",
       "source": "./skills/openzeppelin",
       "description": "OpenZeppelin Contracts v5 for building secure smart contracts. Covers ERC-20/721/1155 tokens, access control (Ownable, AccessControl, AccessManager), security utilities (ReentrancyGuard, Pausable, SafeERC20), upgradeable contracts (UUPS, Initializable), and Defender integration. Use when writing Solidity contracts that need battle-tested, audited building blocks.",
@@ -205,6 +241,12 @@
       "name": "orca",
       "source": "./skills/orca",
       "description": "Complete guide for Orca - Solana's leading concentrated liquidity AMM (CLMM). Covers Whirlpools SDK for swaps, liquidity provision, pool creation, position management, and fee harvesting on Solana and Eclipse networks.",
+      "category": "DeFi"
+    },
+    {
+      "name": "pendle",
+      "source": "./skills/pendle",
+      "description": "Pendle yield tokenization protocol — split yield-bearing assets into PT (Principal Token) and YT (Yield Token), trade fixed and variable yield on Pendle AMM, SY (Standardized Yield) token wrapping, and market operations. Covers Pendle Router, market math, and yield strategy patterns across Ethereum and Arbitrum.",
       "category": "DeFi"
     },
     {
@@ -320,6 +362,12 @@
       "source": "./skills/vulnhunter",
       "description": "Security vulnerability detection and variant analysis skill. Use when hunting for dangerous APIs, footgun patterns, error-prone configurations, and vulnerability variants across codebases. Combines sharp edges detection with variant hunting methodology.",
       "category": "Security"
+    },
+    {
+      "name": "wormhole",
+      "source": "./skills/wormhole",
+      "description": "Wormhole cross-chain messaging and token transfers — NTT (Native Token Transfers) framework, VAA (Verified Action Approvals), guardian network, automatic and manual relayers, Wormhole Queries for cross-chain reads, and Standard Relayer integration. Covers Wormhole SDK, contract interfaces, and deployment across Ethereum, Solana, Arbitrum, Base, and Optimism.",
+      "category": "Cross-Chain"
     },
     {
       "name": "zksync",
