@@ -1,0 +1,134 @@
+# Echidna Configuration Template
+# Copy this file to your project root as echidna.yaml
+# Documentation: https://github.com/crytic/echidna
+
+# ===== Test Execution =====
+
+# Total transactions to generate across all test sequences
+testLimit: 50000
+
+# Maximum transaction sequence length before checking properties.
+# Increase for protocols requiring long setup sequences (lending, governance).
+# Decrease for simple contracts to explore more diverse starting points.
+seqLen: 100
+
+# Maximum attempts to minimize a failing transaction sequence.
+# Higher = cleaner reproducers but slower. Lower = faster results.
+shrinkLimit: 5000
+
+# Testing mode:
+#   "property"     — checks echidna_* functions returning bool (default)
+#   "assertion"    — catches assert() failures and Solidity panics
+#   "optimization" — maximizes echidna_optimize_* return values
+#   "dapptest"     — ds-test/forge-std compatible (test* functions)
+testMode: "property"
+
+# Timeout per individual test sequence in seconds (0 = no timeout)
+testTimeout: 300
+
+# Stop all testing after the first property failure
+# Set to true when debugging a specific property
+stopOnFail: false
+
+# Random seed for reproducibility. Uncomment and set a fixed value
+# to get deterministic runs across machines.
+# seed: 42
+
+# ===== Addresses =====
+
+# Address that deploys the test contract.
+# This address is msg.sender in the constructor.
+# IMPORTANT: Keep deployer different from sender addresses
+# to test access control (deployer is often privileged).
+deployer: "0x30000"
+
+# Addresses used as msg.sender for generated transactions.
+# These are the "attacker" addresses in access control testing.
+# Add more for multi-user protocol testing.
+sender: ["0x10000", "0x20000"]
+
+# Address where the test contract is deployed.
+# Rarely needs changing.
+# contractAddr: "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
+
+# ===== Balances =====
+
+# ETH balance (wei) given to each sender address.
+# Set high to avoid out-of-funds errors during fuzzing.
+balanceAddr: 0xffffffffffffffffffffffff
+
+# ETH balance (wei) given to the deployed contract.
+# Set high if the contract needs to send ETH.
+balanceContract: 0xffffffffffffffffffffffff
+
+# ===== Corpus and Coverage =====
+
+# Directory to save/load corpus between runs.
+# Corpus accumulates coverage-improving transaction sequences.
+# Commit this directory for shared fuzzing campaigns.
+corpusDir: "corpus"
+
+# Enable coverage-guided mutation.
+# When true, Echidna prioritizes inputs that reach new code paths.
+coverage: true
+
+# Path to a dictionary file with hex-encoded seed values.
+# Each line is a 32-byte hex value that Echidna may use as function arguments.
+# Add protocol-specific constants (thresholds, magic numbers, boundary values).
+# dictionary: "dict.txt"
+
+# ===== Compilation =====
+
+# Arguments passed to crytic-compile.
+# For Foundry projects, this is the recommended setting:
+cryticArgs: ["--compile-force-framework", "foundry"]
+
+# For manual remappings (when Foundry framework mode is unavailable):
+# cryticArgs: [
+#   "--solc-remaps",
+#   "@openzeppelin/=lib/openzeppelin-contracts/src/;forge-std/=lib/forge-std/src/"
+# ]
+
+# For Hardhat projects:
+# cryticArgs: ["--compile-force-framework", "hardhat"]
+
+# ===== Parallelism =====
+
+# Number of parallel fuzzing workers.
+# Set to your CPU core count for maximum throughput.
+# Each worker explores independently and shares coverage.
+workers: 4
+
+# ===== Output =====
+
+# Output format: "text" (human-readable), "json" (CI parsing), "none" (silent)
+format: "text"
+
+# Suppress non-essential output
+quiet: false
+
+# ===== Contract Filtering =====
+
+# When true, Echidna calls functions on ALL deployed contracts,
+# not just the test contract. Enable for multi-contract system testing.
+allContracts: false
+
+# Filter which functions Echidna can call.
+# When filterBlacklist is true (default), these functions are EXCLUDED.
+# When filterBlacklist is false, ONLY these functions are called.
+# filterFunctions: ["mint(address,uint256)", "burn(uint256)"]
+# filterBlacklist: true
+
+# ===== Transaction Parameters =====
+
+# Maximum gas per transaction
+maxGas: 12500000
+
+# Maximum time delay (seconds) between transactions in a sequence.
+# Echidna randomly advances block.timestamp by up to this amount.
+# 604800 = 7 days. Reduce for time-sensitive protocols.
+maxTimeDelay: 604800
+
+# Maximum block number increase between transactions.
+# 60480 ~ 7 days of 12-second blocks.
+maxBlockDelay: 60480
