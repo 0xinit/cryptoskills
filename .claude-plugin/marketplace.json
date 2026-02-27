@@ -46,6 +46,12 @@
       "category": "L2 & Alt-L1"
     },
     {
+      "name": "certora",
+      "source": "./skills/certora",
+      "description": "Certora formal verification with CVL — write mathematical proofs for smart contract correctness. Rules, invariants, ghost variables, hooks, parametric rules, multi-contract verification, and counter-example debugging.",
+      "category": "Security"
+    },
+    {
       "name": "chainlink",
       "source": "./skills/chainlink",
       "description": "Chainlink oracle integration — price feeds (AggregatorV3Interface), VRF v2.5 verifiable randomness, Automation (Keepers) for conditional execution, and CCIP cross-chain messaging. Covers staleness checks, decimal normalization, subscription management, and upkeep patterns across Ethereum, Arbitrum, and Base.",
@@ -100,6 +106,12 @@
       "category": "DeFi"
     },
     {
+      "name": "echidna",
+      "source": "./skills/echidna",
+      "description": "Echidna property-based fuzzer for Solidity — property mode, assertion mode, optimization mode, invariant writing, corpus management, config tuning, and Foundry integration. Catch bugs that static analysis misses with stateful fuzzing.",
+      "category": "Security"
+    },
+    {
       "name": "eigenlayer",
       "source": "./skills/eigenlayer",
       "description": "EigenLayer restaking protocol — stake ETH and LSTs to secure AVSs (Actively Validated Services), operator registration and delegation, reward claiming, and slashing conditions. Covers StrategyManager, DelegationManager, AVSDirectory, and the restaking lifecycle on Ethereum mainnet.",
@@ -146,6 +158,12 @@
       "source": "./skills/glam",
       "description": "Solana vault management via GLAM Protocol. Triggers: glam, glam-cli, glam-sdk, vault create/manage, tokenized vault, share class, DeFi vault, treasury, asset management, access control, delegate permissions, Jupiter swap, Drift perpetuals/spot/vaults, Kamino lending/borrow/vaults/farms, staking (Marinade/native/SPL/Sanctum/LST), cross-chain USDC (CCTP), timelock, subscription/redemption, NAV pricing, token transfer. Supports CLI and TypeScript SDK.",
       "category": "DeFi"
+    },
+    {
+      "name": "halmos",
+      "source": "./skills/halmos",
+      "description": "Halmos symbolic testing for Foundry — write symbolic Solidity tests that mathematically verify properties. Foundry-native (no new language), bounded model checking, counter-example generation, and lightweight alternative to Certora.",
+      "category": "Security"
     },
     {
       "name": "hardhat",
@@ -256,6 +274,12 @@
       "category": "DeFi"
     },
     {
+      "name": "mythril",
+      "source": "./skills/mythril",
+      "description": "Mythril symbolic execution for Solidity — deep vulnerability detection via multi-transaction analysis, reentrancy, integer overflow, unchecked calls, and delegatecall exploits. Finds bugs that static analysis and fuzzing miss.",
+      "category": "Security"
+    },
+    {
       "name": "openzeppelin",
       "source": "./skills/openzeppelin",
       "description": "OpenZeppelin Contracts v5 for building secure smart contracts. Covers ERC-20/721/1155 tokens, access control (Ownable, AccessControl, AccessManager), security utilities (ReentrancyGuard, Pausable, SafeERC20), upgradeable contracts (UUPS, Initializable), and Defender integration. Use when writing Solidity contracts that need battle-tested, audited building blocks.",
@@ -338,6 +362,18 @@
       "source": "./skills/sei",
       "description": "Sei parallelized EVM L1 — parallel transaction execution, SeiDB optimistic storage, native order matching engine, twin-turbo consensus, EVM and CosmWasm interop via pointer contracts, associated balances, and precompile contracts for staking, governance, and IBC.",
       "category": "L2 & Alt-L1"
+    },
+    {
+      "name": "semgrep-solidity",
+      "source": "./skills/semgrep-solidity",
+      "description": "Semgrep rules for smart contract security — custom pattern matching, taint tracking, community rulesets, autofix rules, and CI/CD integration. Write targeted detection rules for Solidity vulnerabilities that static analyzers miss.",
+      "category": "Security"
+    },
+    {
+      "name": "slither",
+      "source": "./skills/slither",
+      "description": "Slither static analyzer for Solidity — installation, detector categories, triage workflow, custom detectors, printers, CI integration, and configuration. Run fast security scans on Hardhat and Foundry projects with 90+ built-in detectors.",
+      "category": "Security"
     },
     {
       "name": "solana-agent-kit",
