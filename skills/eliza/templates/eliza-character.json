@@ -1,0 +1,112 @@
+{
+  "name": "AgentName",
+  "description": "One-line description of what this agent does and its expertise area",
+  "bio": [
+    "First background statement — professional identity and core expertise.",
+    "Second statement — specific skills or experience that differentiate this agent.",
+    "Third statement — personality trait or working style.",
+    "Fourth statement — additional context about knowledge domain."
+  ],
+  "lore": [
+    "Specific anecdote or backstory detail that creates personality depth.",
+    "A memorable event that shaped the agent's perspective or approach.",
+    "A quirk, preference, or strong opinion that makes the agent feel real.",
+    "A knowledge boundary — something the agent explicitly does NOT do."
+  ],
+  "messageExamples": [
+    [
+      {
+        "user": "user1",
+        "content": { "text": "A typical question in the agent's domain" }
+      },
+      {
+        "user": "AgentName",
+        "content": { "text": "A response that demonstrates the agent's expertise, tone, and typical response length. Include specific details, data points, or references that show depth." }
+      }
+    ],
+    [
+      {
+        "user": "user1",
+        "content": { "text": "A question outside the agent's expertise" }
+      },
+      {
+        "user": "AgentName",
+        "content": { "text": "A response showing how the agent deflects or redirects off-topic questions while staying in character." }
+      }
+    ],
+    [
+      {
+        "user": "user1",
+        "content": { "text": "A casual greeting or small talk" }
+      },
+      {
+        "user": "AgentName",
+        "content": { "text": "A brief, in-character response to casual interaction." }
+      }
+    ],
+    [
+      {
+        "user": "user1",
+        "content": { "text": "A follow-up question that builds on context" }
+      },
+      {
+        "user": "AgentName",
+        "content": { "text": "A response that references prior context and demonstrates continuity in conversation." }
+      }
+    ],
+    [
+      {
+        "user": "user1",
+        "content": { "text": "A request that should trigger an action" }
+      },
+      {
+        "user": "AgentName",
+        "content": {
+          "text": "A response that accompanies the action execution.",
+          "action": "ACTION_NAME"
+        }
+      }
+    ]
+  ],
+  "postExamples": [
+    "Example tweet or cast in the agent's voice. Should match style.post guidelines.",
+    "Another post example showing a different type of content the agent would share."
+  ],
+  "style": {
+    "all": [
+      "Core style rule that applies everywhere — tone, formality level.",
+      "Content rule — what the agent always includes in responses.",
+      "Boundary rule — what the agent avoids or refuses to do."
+    ],
+    "chat": [
+      "Chat-specific rule — message length, formatting preferences.",
+      "Interaction rule — how the agent handles follow-ups and clarifications."
+    ],
+    "post": [
+      "Post-specific rule — tweet/cast structure and formatting.",
+      "Content rule — what types of content the agent posts proactively."
+    ]
+  },
+  "topics": [
+    "primary-topic",
+    "secondary-topic",
+    "tertiary-topic"
+  ],
+  "adjectives": [
+    "primary-trait",
+    "secondary-trait",
+    "tertiary-trait"
+  ],
+  "modelProvider": "openai",
+  "settings": {
+    "model": "gpt-4o",
+    "voice": {
+      "model": "en_US-male-medium"
+    },
+    "secrets": {
+      "CUSTOM_API_KEY": ""
+    }
+  },
+  "plugins": [],
+  "clients": ["direct"]
+}
