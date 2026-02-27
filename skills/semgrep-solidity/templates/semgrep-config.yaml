@@ -1,0 +1,140 @@
+# .semgrep/project-rules.yaml
+# Starter Semgrep configuration for a Solidity project.
+# Place this in .semgrep/ at project root and run:
+#   semgrep --config .semgrep/ ./contracts/
+#
+# Customize rules for your project's patterns and invariants.
+# Last verified: February 2026
+
+rules:
+  # ── Reentrancy ─────────────────────────────────────────────────
+  - id: state-change-after-external-call
+    patterns:
+      - pattern: |
+          $ADDR.call{value: ...}(...);
+          ...
+          $STATE[$KEY] = $VAL;
+      - pattern-not-inside: |
+          function $F(...) ... nonReentrant ... { ... }
+    message: >-
+      State update after external call — reentrancy risk. Move state
+      changes before the external call (CEI pattern) or add a
+      ReentrancyGuard.
+    languages: [solidity]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-841"
+      references:
+        - https://swcregistry.io/docs/SWC-107
+
+  # ── Access Control ─────────────────────────────────────────────
+  - id: tx-origin-authentication
+    pattern-either:
+      - pattern: require(tx.origin == $ADDR, ...)
+      - pattern: require(tx.origin == $ADDR)
+    message: >-
+      tx.origin used for authentication — vulnerable to phishing
+      attacks. Use msg.sender instead (SWC-115).
+    languages: [solidity]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe: "CWE-477"
+      references:
+        - https://swcregistry.io/docs/SWC-115
+
+  # ── Unsafe Operations ──────────────────────────────────────────
+  - id: unprotected-selfdestruct
+    patterns:
+      - pattern: selfdestruct(...)
+      - pattern-not-inside: |
+          function $F(...) ... onlyOwner ... { ... }
+      - pattern-not-inside: |
+          function $F(...) ... onlyRole(...) ... { ... }
+      - pattern-not-inside: |
+          require(msg.sender == $OWNER, ...);
+          ...
+          selfdestruct(...);
+    message: >-
+      selfdestruct without access control. Any caller can destroy
+      this contract and send funds to an arbitrary address.
+    languages: [solidity]
+    severity: ERROR
+    metadata:
+      category: security
+
+  # ── Unsafe Delegatecall ────────────────────────────────────────
+  - id: delegatecall-user-controlled
+    mode: taint
+    message: >-
+      User-supplied address passed to delegatecall. An attacker can
+      execute arbitrary code in the context of this contract.
+    languages: [solidity]
+    severity: ERROR
+    pattern-sources:
+      - patterns:
+          - pattern: $PARAM
+          - pattern-inside: |
+              function $F(..., address $PARAM, ...) external { ... }
+    pattern-sinks:
+      - pattern: $ADDR.delegatecall(...)
+    metadata:
+      category: security
+      cwe: "CWE-829"
+
+  # ── Unchecked Return Values ────────────────────────────────────
+  - id: unchecked-erc20-transfer
+    patterns:
+      - pattern-either:
+          - pattern: $TOKEN.transfer($TO, $AMOUNT)
+          - pattern: $TOKEN.transferFrom($FROM, $TO, $AMOUNT)
+      - pattern-not-inside: require($TOKEN.transfer(...), ...)
+      - pattern-not-inside: require($TOKEN.transferFrom(...), ...)
+      - pattern-not: $TOKEN.safeTransfer($TO, $AMOUNT)
+      - pattern-not: $TOKEN.safeTransferFrom($FROM, $TO, $AMOUNT)
+    message: >-
+      ERC20 transfer return value not checked. Some tokens (USDT)
+      don't revert on failure. Use OpenZeppelin SafeERC20.
+    languages: [solidity]
+    severity: ERROR
+    metadata:
+      category: security
+
+  # ── Unsafe Casting ─────────────────────────────────────────────
+  - id: unsafe-uint-downcast
+    pattern-either:
+      - pattern: uint128($X)
+      - pattern: uint96($X)
+      - pattern: uint64($X)
+      - pattern: uint32($X)
+      - pattern: uint16($X)
+      - pattern: uint8($X)
+    message: >-
+      Downcasting without overflow check. Solidity 0.8.x checked
+      math does not protect type casts — values silently truncate.
+      Use OpenZeppelin SafeCast.
+    languages: [solidity]
+    severity: WARNING
+    metadata:
+      category: security
+      references:
+        - https://docs.openzeppelin.com/contracts/5.x/api/utils#SafeCast
+
+  # ── Timestamp Dependency ───────────────────────────────────────
+  - id: timestamp-as-randomness
+    patterns:
+      - pattern-either:
+          - pattern: keccak256(abi.encodePacked(<... block.timestamp ...>))
+          - pattern: keccak256(abi.encode(<... block.timestamp ...>))
+    message: >-
+      block.timestamp used in hash — if used for randomness, validators
+      can manipulate within a ~15s window. Use Chainlink VRF for
+      provable randomness.
+    languages: [solidity]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-330"
+      references:
+        - https://swcregistry.io/docs/SWC-120
