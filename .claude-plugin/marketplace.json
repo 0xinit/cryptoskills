@@ -16,6 +16,24 @@
       "category": "DeFi"
     },
     {
+      "name": "arbitrum",
+      "source": "./skills/arbitrum",
+      "description": "Arbitrum Nitro L2 development — deployment, cross-chain messaging (Retryable Tickets), Orbit chains, ArbOS precompiles, bridging, and gas model differences from Ethereum.",
+      "category": "L2 & Alt-L1"
+    },
+    {
+      "name": "arbitrum-stylus",
+      "source": "./skills/arbitrum-stylus",
+      "description": "Arbitrum Stylus development — write smart contracts in Rust, C, and C++ compiled to WASM. Covers Stylus SDK, storage patterns, ABI export, deployment, testing, and Solidity interop.",
+      "category": "L2 & Alt-L1"
+    },
+    {
+      "name": "base",
+      "source": "./skills/base",
+      "description": "Base L2 development (Coinbase) — deployment, OnchainKit, Paymaster (gasless transactions), Smart Wallet, Base Account SDK, and OP Stack integration. Built on Optimism's OP Stack.",
+      "category": "L2 & Alt-L1"
+    },
+    {
       "name": "chainlink",
       "source": "./skills/chainlink",
       "description": "Chainlink oracle integration — price feeds (AggregatorV3Interface), VRF v2.5 verifiable randomness, Automation (Keepers) for conditional execution, and CCIP cross-chain messaging. Covers staleness checks, decimal normalization, subscription management, and upkeep patterns across Ethereum, Arbitrum, and Base.",
@@ -142,6 +160,12 @@
       "category": "DeFi"
     },
     {
+      "name": "megaeth",
+      "source": "./skills/megaeth",
+      "description": "MegaETH real-time blockchain development — instant receipts, eth_sendRawTransactionSync, MegaNames, Warren sequencer, ERC-7710 delegations, and sub-millisecond storage optimization.",
+      "category": "L2 & Alt-L1"
+    },
+    {
       "name": "metaplex",
       "source": "./skills/metaplex",
       "description": "Complete Metaplex Protocol guide for Solana NFTs and digital assets. Covers Core (next-gen NFTs), Token Metadata, Bubblegum (compressed NFTs), Candy Machine, Genesis (token launches), MPL-Hybrid, Inscriptions, DAS API, and the Umi framework. The single source of truth for all Metaplex integrations.",
@@ -160,10 +184,22 @@
       "category": "DeFi"
     },
     {
+      "name": "monad",
+      "source": "./skills/monad",
+      "description": "Monad L1 development — parallel execution, MonadBFT consensus, 400ms blocks, gas-limit charging, opcode repricing, staking precompile, and deployment patterns.",
+      "category": "L2 & Alt-L1"
+    },
+    {
       "name": "openzeppelin",
       "source": "./skills/openzeppelin",
       "description": "OpenZeppelin Contracts v5 for building secure smart contracts. Covers ERC-20/721/1155 tokens, access control (Ownable, AccessControl, AccessManager), security utilities (ReentrancyGuard, Pausable, SafeERC20), upgradeable contracts (UUPS, Initializable), and Defender integration. Use when writing Solidity contracts that need battle-tested, audited building blocks.",
       "category": "Infrastructure"
+    },
+    {
+      "name": "optimism",
+      "source": "./skills/optimism",
+      "description": "Optimism and OP Stack development — deployment, cross-chain messaging (CrossDomainMessenger), SuperchainERC20, predeploy contracts, gas model (L1 data fee + EIP-4844), and Superchain interop.",
+      "category": "L2 & Alt-L1"
     },
     {
       "name": "orca",
@@ -176,6 +212,12 @@
       "source": "./skills/pinocchio",
       "description": "Comprehensive guide for building high-performance Solana programs using Pinocchio - the zero-dependency, zero-copy framework. Covers account validation, CPI patterns, optimization techniques, and migration from Anchor.",
       "category": "Dev Tools"
+    },
+    {
+      "name": "polygon",
+      "source": "./skills/polygon",
+      "description": "Polygon ecosystem development — PoS chain deployment, zkEVM patterns, AggLayer interop, POL token migration, and bridging across Polygon chains.",
+      "category": "L2 & Alt-L1"
     },
     {
       "name": "pumpfun",
@@ -244,6 +286,12 @@
       "category": "Infrastructure"
     },
     {
+      "name": "starknet",
+      "source": "./skills/starknet",
+      "description": "StarkNet development with Cairo — smart contract patterns, native account abstraction, Scarb package manager, starknet.js integration, deployment, testing, and L1-L2 messaging.",
+      "category": "L2 & Alt-L1"
+    },
+    {
       "name": "surfpool",
       "source": "./skills/surfpool",
       "description": "Complete Surfpool development environment for Solana - drop-in replacement for solana-test-validator with mainnet forking, cheatcodes, Infrastructure as Code, and Surfpool Studio. The fastest way to develop and test Solana programs.",
@@ -272,6 +320,12 @@
       "source": "./skills/vulnhunter",
       "description": "Security vulnerability detection and variant analysis skill. Use when hunting for dangerous APIs, footgun patterns, error-prone configurations, and vulnerability variants across codebases. Combines sharp edges detection with variant hunting methodology.",
       "category": "Security"
+    },
+    {
+      "name": "zksync",
+      "source": "./skills/zksync",
+      "description": "zkSync Era development — ZK-specific deployment patterns, native account abstraction, paymasters for gasless transactions, system contracts, and EVM differences.",
+      "category": "L2 & Alt-L1"
     }
   ]
 }
