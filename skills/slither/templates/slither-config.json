@@ -1,0 +1,9 @@
+{
+  "filter_paths": "lib/forge-std|lib/openzeppelin-contracts|node_modules",
+  "detectors_to_exclude": "naming-convention,solc-version,pragma,dead-code",
+  "exclude_informational": false,
+  "exclude_optimization": true,
+  "exclude_low": false,
+  "solc_disable_warnings": true,
+  "json": "slither-report.json"
+}
