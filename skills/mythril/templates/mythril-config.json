@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Mythril Analysis Runner
+# Sensible defaults for common analysis scenarios.
+#
+# Usage:
+#   chmod +x mythril-config.json
+#   ./mythril-config.json <contract.sol> [quick|standard|deep] [solc-version]
+#
+# Note: This file is named .json for skill template convention but is a shell script.
+# Rename to mythril-run.sh in your project.
+#
+# Examples:
+#   ./mythril-run.sh src/Vault.sol quick
+#   ./mythril-run.sh src/Vault.sol standard 0.8.28
+#   ./mythril-run.sh src/Vault.sol deep
+
+CONTRACT="${1:?Usage: ./mythril-run.sh <contract.sol> [quick|standard|deep] [solc-version]}"
+MODE="${2:-standard}"
+SOLC_VERSION="${3:-0.8.28}"
+REPORT_DIR="reports/mythril"
+
+mkdir -p "$REPORT_DIR"
+
+CONTRACT_NAME=$(basename "$CONTRACT" .sol)
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+REPORT_FILE="${REPORT_DIR}/${CONTRACT_NAME}-${MODE}-${TIMESTAMP}.json"
+
+case "$MODE" in
+  quick)
+    TX_DEPTH=1
+    EXEC_TIMEOUT=120
+    SOLVER_TIMEOUT=10000
+    MAX_DEPTH=50
+    ;;
+  standard)
+    TX_DEPTH=2
+    EXEC_TIMEOUT=300
+    SOLVER_TIMEOUT=30000
+    MAX_DEPTH=64
+    ;;
+  deep)
+    TX_DEPTH=3
+    EXEC_TIMEOUT=3600
+    SOLVER_TIMEOUT=60000
+    MAX_DEPTH=128
+    ;;
+  *)
+    echo "Unknown mode: $MODE (use quick, standard, or deep)"
+    exit 1
+    ;;
+esac
+
+echo "Mythril Analysis"
+echo "  Contract:   $CONTRACT"
+echo "  Mode:       $MODE"
+echo "  Tx Depth:   $TX_DEPTH"
+echo "  Timeout:    ${EXEC_TIMEOUT}s"
+echo "  Solc:       $SOLC_VERSION"
+echo "  Report:     $REPORT_FILE"
+echo ""
+
+# Detect project type for import resolution
+SOLC_ARGS=""
+if [ -f "foundry.toml" ]; then
+  SOLC_ARGS='--solc-args "--base-path . --include-path lib --allow-paths ."'
+  echo "  Project:    Foundry (auto-detected)"
+elif [ -d "node_modules" ]; then
+  SOLC_ARGS='--solc-args "--base-path . --include-path node_modules"'
+  echo "  Project:    Hardhat/npm (auto-detected)"
+fi
+
+echo ""
+
+# Prefer Docker if available, fall back to local myth
+if command -v docker &>/dev/null && docker image inspect mythril/myth &>/dev/null 2>&1; then
+  echo "Using Docker..."
+  eval docker run --rm \
+    --memory=4g \
+    --cpus=2 \
+    -v "$(pwd)":/src \
+    mythril/myth analyze \
+    "/src/$CONTRACT" \
+    --solv "$SOLC_VERSION" \
+    -t "$TX_DEPTH" \
+    --execution-timeout "$EXEC_TIMEOUT" \
+    --solver-timeout "$SOLVER_TIMEOUT" \
+    --max-depth "$MAX_DEPTH" \
+    $SOLC_ARGS \
+    -o json \
+    > "$REPORT_FILE" 2>"${REPORT_FILE%.json}.stderr.log"
+elif command -v myth &>/dev/null; then
+  echo "Using local myth..."
+  eval myth analyze "$CONTRACT" \
+    --solv "$SOLC_VERSION" \
+    -t "$TX_DEPTH" \
+    --execution-timeout "$EXEC_TIMEOUT" \
+    --solver-timeout "$SOLVER_TIMEOUT" \
+    --max-depth "$MAX_DEPTH" \
+    $SOLC_ARGS \
+    -o json \
+    > "$REPORT_FILE" 2>"${REPORT_FILE%.json}.stderr.log"
+else
+  echo "Error: Neither Docker (with mythril/myth image) nor myth CLI found."
+  echo ""
+  echo "Install via Docker:  docker pull mythril/myth"
+  echo "Install via pip:     pip3 install mythril"
+  exit 1
+fi
+
+EXIT_CODE=$?
+
+echo ""
+
+# Parse and summarize results
+if [ -f "$REPORT_FILE" ] && [ -s "$REPORT_FILE" ]; then
+  ISSUE_COUNT=$(python3 -c "
+import json, sys
+try:
+    data = json.load(open('$REPORT_FILE'))
+    issues = data.get('issues', [])
+    print(len(issues))
+except:
+    print('error')
+" 2>/dev/null)
+
+  if [ "$ISSUE_COUNT" = "error" ]; then
+    echo "Report generated but could not parse JSON. Check $REPORT_FILE"
+  elif [ "$ISSUE_COUNT" = "0" ]; then
+    echo "No issues found."
+  else
+    echo "$ISSUE_COUNT issue(s) found:"
+    echo ""
+    python3 -c "
+import json
+data = json.load(open('$REPORT_FILE'))
+for issue in data.get('issues', []):
+    severity = issue.get('severity', 'Unknown')
+    title = issue.get('title', 'Unknown')
+    swc = issue.get('swc-id', 'N/A')
+    func = issue.get('function_name', 'Unknown')
+    print(f'  [{severity}] SWC-{swc}: {title} in {func}')
+" 2>/dev/null
+  fi
+else
+  echo "No report generated. Check ${REPORT_FILE%.json}.stderr.log for errors."
+fi
+
+echo ""
+echo "Full report: $REPORT_FILE"
+echo "Stderr log:  ${REPORT_FILE%.json}.stderr.log"
+
+exit $EXIT_CODE
