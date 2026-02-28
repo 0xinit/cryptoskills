@@ -16,6 +16,12 @@
       "category": "DeFi"
     },
     {
+      "name": "aptos",
+      "source": "./skills/aptos",
+      "description": "Aptos Move-based L1 development — Move modules with global storage, resource accounts, Aptos SDK (@aptos-labs/ts-sdk), Coin standard, Token V2 (Digital Assets), view functions, multi-agent transactions, gas estimation, and Block-STM parallel execution.",
+      "category": "L2 & Alt-L1"
+    },
+    {
       "name": "arbitrum",
       "source": "./skills/arbitrum",
       "description": "Arbitrum Nitro L2 development — deployment, cross-chain messaging (Retryable Tickets), Orbit chains, ArbOS precompiles, bridging, and gas model differences from Ethereum.",
@@ -26,6 +32,12 @@
       "source": "./skills/arbitrum-stylus",
       "description": "Arbitrum Stylus development — write smart contracts in Rust, C, and C++ compiled to WASM. Covers Stylus SDK, storage patterns, ABI export, deployment, testing, and Solidity interop.",
       "category": "L2 & Alt-L1"
+    },
+    {
+      "name": "axelar",
+      "source": "./skills/axelar",
+      "description": "Axelar cross-chain messaging and token routing — General Message Passing (GMP), Interchain Token Service (ITS) for native multichain tokens, AxelarExecutable contract pattern, gas estimation, and cross-chain token deployment. Covers Axelar SDK, Gateway contract, and GasService integration.",
+      "category": "Cross-Chain"
     },
     {
       "name": "base",
@@ -112,6 +124,12 @@
       "category": "Infrastructure"
     },
     {
+      "name": "ethers-js",
+      "source": "./skills/ethers-js",
+      "description": "ethers.js v6 TypeScript/JavaScript Ethereum library — Provider, Signer, Contract interaction, ABI encoding/decoding, event filters, ENS resolution, and BigNumber-to-bigint migration from v5. Covers JsonRpcProvider, BrowserProvider, Wallet, ContractFactory, and typed contract interfaces.",
+      "category": "Dev Tools"
+    },
+    {
       "name": "evm-testing",
       "source": "./skills/evm-testing",
       "description": "Comprehensive testing patterns for EVM smart contracts. Covers unit tests, fuzz testing, invariant testing, fork testing, and gas optimization with Foundry and Hardhat. Focuses on patterns and techniques — not CLI usage or project setup.",
@@ -128,6 +146,12 @@
       "source": "./skills/glam",
       "description": "Solana vault management via GLAM Protocol. Triggers: glam, glam-cli, glam-sdk, vault create/manage, tokenized vault, share class, DeFi vault, treasury, asset management, access control, delegate permissions, Jupiter swap, Drift perpetuals/spot/vaults, Kamino lending/borrow/vaults/farms, staking (Marinade/native/SPL/Sanctum/LST), cross-chain USDC (CCTP), timelock, subscription/redemption, NAV pricing, token transfer. Supports CLI and TypeScript SDK.",
       "category": "DeFi"
+    },
+    {
+      "name": "hardhat",
+      "source": "./skills/hardhat",
+      "description": "Hardhat Solidity development framework — project setup, plugin ecosystem, testing with Mocha/Chai, deployment with Hardhat Ignition, contract verification, Hardhat Network forking, TypeScript configuration, and custom task creation. Works on any EVM chain.",
+      "category": "Dev Tools"
     },
     {
       "name": "helius",
@@ -182,6 +206,12 @@
       "source": "./skills/magicblock",
       "description": "Complete guide for MagicBlock Ephemeral Rollups - high-performance Solana execution with sub-10ms latency, gasless transactions, and Solana Plugins. Use when building real-time games, high-frequency trading, or any application requiring ultra-low latency on Solana.",
       "category": "Infrastructure"
+    },
+    {
+      "name": "maker",
+      "source": "./skills/maker",
+      "description": "MakerDAO / Sky protocol -- Maker Vaults (CDPs) for DAI minting against collateral, DAI Savings Rate (DSR), Liquidation 2.0 with Dutch auctions, MKR governance, and Sky rebranding (USDS/SKY tokens). Covers DssProxyActions, Vat core accounting, Jug stability fees, and Spark Protocol integration.",
+      "category": "DeFi"
     },
     {
       "name": "marginfi",
@@ -286,6 +316,12 @@
       "category": "DeFi"
     },
     {
+      "name": "redstone",
+      "source": "./skills/redstone",
+      "description": "RedStone modular oracle -- Pull model (EVM Connector) for on-demand price data in calldata, Push model (classic feeds) for Chainlink-compatible interfaces, RedStone X for frontrunning protection, data packaging, and custom data feed creation.",
+      "category": "Oracles"
+    },
+    {
       "name": "safe",
       "source": "./skills/safe",
       "description": "Safe (formerly Gnosis Safe) multisig SDK for creating, managing, and executing multi-signature transactions. Covers Safe{Core} SDK (protocol-kit, api-kit, relay-kit), deploying new Safes, proposing and confirming transactions, modules and guards, EIP-1271 signature validation, and Safe Transaction Service integration. Works on Ethereum, Arbitrum, Base, Optimism, Polygon, and 15+ EVM chains.",
@@ -296,6 +332,12 @@
       "source": "./skills/sanctum",
       "description": "Complete Sanctum SDK for liquid staking, LST swaps, and Infinity pool operations on Solana. Use when working with LSTs (mSOL, jitoSOL, bSOL, INF), staking SOL, swapping between liquid staking tokens, or integrating Sanctum's liquidity infrastructure.",
       "category": "DeFi"
+    },
+    {
+      "name": "sei",
+      "source": "./skills/sei",
+      "description": "Sei parallelized EVM L1 — parallel transaction execution, SeiDB optimistic storage, native order matching engine, twin-turbo consensus, EVM and CosmWasm interop via pointer contracts, associated balances, and precompile contracts for staking, governance, and IBC.",
+      "category": "L2 & Alt-L1"
     },
     {
       "name": "solana-agent-kit",
@@ -334,6 +376,12 @@
       "category": "L2 & Alt-L1"
     },
     {
+      "name": "sui",
+      "source": "./skills/sui",
+      "description": "Sui Move-based L1 development — object-centric ownership model, Programmable Transaction Blocks (PTBs), Sui SDK (@mysten/sui), shared vs owned objects, Move module publishing, gas sponsorship, zkLogin authentication, and parallel execution via object ownership.",
+      "category": "L2 & Alt-L1"
+    },
+    {
       "name": "surfpool",
       "source": "./skills/surfpool",
       "description": "Complete Surfpool development environment for Solana - drop-in replacement for solana-test-validator with mainnet forking, cheatcodes, Infrastructure as Code, and Surfpool Studio. The fastest way to develop and test Solana programs.",
@@ -344,6 +392,18 @@
       "source": "./skills/switchboard",
       "description": "Complete Switchboard Oracle Protocol SDK for Solana - the permissionless oracle solution for price feeds, on-demand data, VRF randomness, and real-time streaming via Surge. Covers TypeScript SDK, Rust integration, Oracle Quotes, and all Switchboard tools.",
       "category": "Oracles"
+    },
+    {
+      "name": "tenderly",
+      "source": "./skills/tenderly",
+      "description": "Tenderly blockchain DevOps platform — transaction simulation API, fork environments for testing, Alerts and Webhooks for monitoring, Web3 Actions (serverless functions), contract verification, Gas Profiler, and Transaction Debugger. Covers REST API integration and Tenderly SDK.",
+      "category": "DevOps"
+    },
+    {
+      "name": "the-graph",
+      "source": "./skills/the-graph",
+      "description": "The Graph decentralized indexing protocol — subgraph development (schema.graphql, AssemblyScript mappings, subgraph.yaml manifest), GraphQL queries, Subgraph Studio deployment, hosted service migration, indexing optimization, and Graph Client for type-safe queries.",
+      "category": "Infrastructure"
     },
     {
       "name": "uniswap",
@@ -362,6 +422,12 @@
       "source": "./skills/vulnhunter",
       "description": "Security vulnerability detection and variant analysis skill. Use when hunting for dangerous APIs, footgun patterns, error-prone configurations, and vulnerability variants across codebases. Combines sharp edges detection with variant hunting methodology.",
       "category": "Security"
+    },
+    {
+      "name": "wagmi",
+      "source": "./skills/wagmi",
+      "description": "wagmi React hooks for Ethereum — createConfig, useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, wallet connectors, SSR/Next.js patterns, and TanStack Query integration. Build type-safe dApp frontends with viem under the hood.",
+      "category": "Dev Tools"
     },
     {
       "name": "wormhole",
