@@ -861,6 +861,125 @@ my-subgraph/
   tsconfig.json
 ```
 
+## Indexing Alternatives
+
+The Graph is the standard for decentralized indexing, but it's not always the best fit. Consider alternatives for specific use cases.
+
+### When NOT to Use The Graph
+
+- **Small projects** (<5 entity types, simple queries): Setup overhead exceeds benefit
+- **TypeScript-first teams**: AssemblyScript mapping layer adds friction
+- **Real-time data** (<2 second freshness): Subgraph indexing has inherent latency (block confirmation + indexing time)
+- **Complex joins/aggregations**: GraphQL limitations make multi-entity analytics painful
+- **Rapid iteration**: Subgraph deployment and syncing takes minutes to hours
+
+### Ponder
+
+TypeScript-native indexing framework. Write handlers in TS (not AssemblyScript), get automatic GraphQL API, and iterate with hot reloading.
+
+```typescript
+// ponder.config.ts
+import { createConfig } from "@ponder/core";
+import { http } from "viem";
+import { ERC20Abi } from "./abis/ERC20";
+
+export default createConfig({
+  networks: {
+    mainnet: { chainId: 1, transport: http(process.env.PONDER_RPC_URL_1) },
+  },
+  contracts: {
+    ERC20: {
+      network: "mainnet",
+      abi: ERC20Abi,
+      address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+      startBlock: 6_082_465,
+    },
+  },
+});
+
+// src/ERC20.ts — event handler in TypeScript (not AssemblyScript)
+import { ponder } from "@/generated";
+
+ponder.on("ERC20:Transfer", async ({ event, context }) => {
+  const { Account, Transfer } = context.db;
+
+  await Account.upsert({ id: event.args.from });
+  await Account.upsert({ id: event.args.to });
+
+  await Transfer.create({
+    id: event.log.id,
+    data: {
+      from: event.args.from,
+      to: event.args.to,
+      amount: event.args.value,
+      timestamp: Number(event.block.timestamp),
+    },
+  });
+});
+```
+
+**Why choose Ponder**: 10-15x faster iteration (hot reload, no deploy wait), full TypeScript (no AssemblyScript learning curve), viem types, automatic GraphQL API, runs locally or self-hosted. Best for teams that want subgraph-like indexing without the AssemblyScript tax.
+
+### Dune Analytics
+
+SQL-based blockchain analytics platform. Best for historical analysis, cross-protocol queries, and dashboards -- not real-time application backends.
+
+```sql
+-- Top USDC transfers in last 24 hours
+SELECT
+  "from",
+  "to",
+  value / 1e6 AS usdc_amount,
+  block_time
+FROM erc20_ethereum.evt_Transfer
+WHERE contract_address = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+  AND block_time > now() - interval '24 hours'
+ORDER BY value DESC
+LIMIT 20;
+```
+
+**Why choose Dune**: Pre-indexed data across all major chains, SQL interface, community dashboards, no infrastructure to manage. **Not suitable for**: real-time dApp backends (query latency 5-30s), programmatic API access requires paid plan.
+
+### Direct RPC + Multicall3
+
+For simple read-heavy patterns, skip indexing entirely. Batch onchain reads with Multicall3.
+
+```typescript
+import { createPublicClient, http } from 'viem';
+import { mainnet } from 'viem/chains';
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+});
+
+// Batch multiple reads in a single RPC call
+const results = await client.multicall({
+  contracts: [
+    { address: tokenA, abi: erc20Abi, functionName: 'balanceOf', args: [user] },
+    { address: tokenB, abi: erc20Abi, functionName: 'balanceOf', args: [user] },
+    { address: pool, abi: poolAbi, functionName: 'slot0' },
+    { address: pool, abi: poolAbi, functionName: 'liquidity' },
+  ],
+});
+```
+
+Multicall3 is deployed at `0xcA11bde05977b3631167028862bE2a173976CA11` on 70+ chains (same address everywhere via CREATE2).
+
+**Why choose direct RPC**: Zero infrastructure, real-time data, simple reads. **Not suitable for**: historical queries, event aggregation, complex entity relationships.
+
+### Decision Matrix
+
+| Use Case | Recommended | Why |
+|----------|-------------|-----|
+| Production dApp backend | The Graph | Decentralized, reliable, GraphQL API |
+| Rapid prototyping | Ponder | Hot reload, TypeScript, fast iteration |
+| Analytics dashboard | Dune | SQL, pre-indexed, cross-protocol |
+| Simple token balances | Multicall3 | Zero infra, real-time, trivial setup |
+| Historical event aggregation | The Graph or Ponder | Both handle event indexing well |
+| Cross-chain queries | Dune | Pre-indexed multi-chain data |
+| Real-time price feeds | Direct RPC | Lowest latency |
+
 ## References
 
 - Subgraph Studio: https://thegraph.com/studio/
