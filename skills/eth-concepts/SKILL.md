@@ -380,6 +380,82 @@ Never assume 18 decimals. Always read `decimals()` from the token contract. Arit
 
 These are compile-time constants, not runtime calls. `1 ether` is syntactic sugar for the literal `1000000000000000000`.
 
+## Ethereum Network Evolution (2025-2026)
+
+### Pectra Upgrade (May 7, 2025)
+
+The Prague-Electra (Pectra) upgrade combined execution and consensus layer changes:
+
+**EIP-7702 — EOA Delegation**: EOAs can temporarily delegate to smart contract code within a transaction. Type 0x04 transactions include an `authorizationList` — signed tuples of `(chainId, address, nonce)` that set the EOA's code to point at a delegation target. This enables batch transactions, gas sponsorship, and smart account features for existing EOAs without migration.
+
+**EIP-2537 — BLS12-381 Precompile**: Native BLS signature operations at addresses 0x0b-0x13. Enables efficient BLS signature verification onchain — critical for bridges, zero-knowledge proofs, and cross-chain messaging that rely on BLS aggregate signatures. Previously required expensive Solidity implementations (~100k+ gas vs ~45k with precompile).
+
+**EIP-2935 — Historical Block Hashes in State**: The BLOCKHASH opcode previously only accessed the last 256 blocks. EIP-2935 stores block hashes in a system contract at `0x0000...0025` (ring buffer of 8191 slots), enabling smart contracts to verify historical state up to ~27 hours back. Useful for trustless bridges and optimistic rollup proofs.
+
+**EIP-7685 — Execution Layer Requests**: General-purpose framework for the execution layer to trigger consensus layer actions. Replaces ad-hoc mechanisms with a unified request type system. Used by EIP-6110 (validator deposits) and EIP-7002 (execution-triggered withdrawals).
+
+**Blob Target Increase**: Blob target increased from 3 to 6 per block, doubling L2 data availability capacity. Max blobs increased from 6 to 9. Reduced L2 transaction costs further.
+
+```solidity
+// EIP-7702: Check if EOA has delegated code
+// After delegation, EOA's code returns the delegation target
+function isDelegated(address account) external view returns (bool) {
+    uint256 size;
+    assembly { size := extcodesize(account) }
+    return size > 0; // EOAs normally have size 0
+}
+```
+
+### Fusaka Upgrade (Dec 3, 2025)
+
+The Fusaka upgrade focused on scaling and efficiency:
+
+**EIP-7594 — PeerDAS (Peer Data Availability Sampling)**: Nodes only download a subset of blob data columns and reconstruct the rest via erasure coding. Reduces bandwidth requirements for validators while maintaining data availability guarantees. Enables future blob count increases without proportional bandwidth growth.
+
+**EIP-7935 — Gas Limit 60M**: Block gas limit raised from 36M to 60M, increasing L1 throughput by ~67%. Combined with EIP-4844 blob improvements, this nearly doubled effective L1 capacity compared to pre-Pectra levels.
+
+**EIP-7825 — Transaction Gas Cap**: Individual transaction gas limit capped at 16.78M (2^24 - 2^14). Prevents single transactions from consuming more than ~28% of block gas, improving block production reliability and reducing worst-case execution times.
+
+**EIP-7951 — secp256r1 Precompile (Passkey Support)**: Native verification of P-256 (secp256r1) signatures at a precompile address. WebAuthn/passkey authentication can now be verified cheaply onchain (~3,450 gas vs ~300k+ in Solidity). Enables hardware security key and biometric-based wallet authentication without account abstraction overhead.
+
+### Sub-Gwei Gas Reality
+
+Post-Dencun blob transactions fundamentally changed Ethereum's fee landscape:
+
+| Period | Avg Base Fee | Cause |
+|--------|-------------|-------|
+| Early 2024 | 30-72 gwei | Pre-blob, L2 data on calldata |
+| Late 2024 | 3-10 gwei | Blobs absorb L2 data, reduced calldata demand |
+| 2025-2026 | 0.05-0.3 gwei | Increased blob capacity, activity shift to L2s |
+
+L1 is cheap again for simple operations. A basic ETH transfer costs $0.01-0.05. However, this reduced ETH burn rate significantly — issuance now exceeds burn, making ETH net inflationary since mid-2024.
+
+```typescript
+// Gas cost estimation in the sub-gwei era
+const gasPrice = await client.getGasPrice(); // ~0.1 gwei
+const ethTransferCost = gasPrice * 21000n; // ~2,100 gwei = 0.0000021 ETH
+// At $3,500 ETH: ~$0.007 per transfer
+```
+
+### MEV Landscape 2026
+
+**Flashbots BuilderNet** (launched Dec 2024): Decentralized block building network using TEEs (Trusted Execution Environments). Builders run in secure enclaves, preventing them from frontrunning or censoring transactions. Aims to replace the centralized builder oligopoly.
+
+**MEV-Share**: Redistribution protocol where searchers share MEV revenue with users whose transactions create the MEV opportunity. Users submit transactions to MEV-Share's matchmaker, receive a portion of backrun profits.
+
+**Flashbots Protect RPC**: Drop-in RPC endpoint (`https://rpc.flashbots.net`) that prevents frontrunning by sending transactions directly to Flashbots builders, bypassing the public mempool. Supports `fast` mode (shared with all builders) and `privacy` mode (Flashbots builder only).
+
+**Block Builder Ecosystem**: ~90% of Ethereum blocks are built by specialized builders via MEV-Boost. Top builders (Flashbots, beaverbuild, Titan) compete on bundle inclusion and gas price optimization. Proposer-Builder Separation (PBS) is de facto standard.
+
+### Validator Economics
+
+Current validator landscape (early 2026):
+- **Staking yield**: ~3.0-3.5% APR (consensus + execution rewards)
+- **MEV-Boost revenue**: Additional 0.3-0.8% APR via block building auctions
+- **Restaking**: EigenLayer allows validators to secure additional services (AVSs) for extra yield, adding 1-5% APR depending on risk
+- **Hardware**: PeerDAS increases bandwidth requirements (~1-2 Mbps sustained upload for blob sampling)
+- **Minimum stake**: 32 ETH per validator, with EIP-7251 (Pectra) allowing consolidation up to 2048 ETH per validator
+
 ## References
 
 - [Ethereum Yellow Paper](https://ethereum.github.io/yellowpaper/paper.pdf) — Formal EVM specification
@@ -392,3 +468,9 @@ These are compile-time constants, not runtime calls. `1 ether` is syntactic suga
 - [Solidity ABI Specification](https://docs.soliditylang.org/en/latest/abi-spec.html)
 - [EVM Opcodes Reference](https://www.evm.codes/) — Interactive opcode table with gas costs
 - [EVM Deep Dives (noxx)](https://noxx.substack.com/) — Excellent visual EVM internals series
+- [EIP-7702: Set EOA Account Code](https://eips.ethereum.org/EIPS/eip-7702) — EOA delegation for smart account features
+- [EIP-2537: BLS12-381 Precompile](https://eips.ethereum.org/EIPS/eip-2537) — Native BLS operations
+- [EIP-7594: PeerDAS](https://eips.ethereum.org/EIPS/eip-7594) — Peer Data Availability Sampling
+- [EIP-7951: secp256r1 Precompile](https://eips.ethereum.org/EIPS/eip-7951) — Passkey signature verification
+- [Flashbots Docs](https://docs.flashbots.net/) — MEV infrastructure and Protect RPC
+- [ultrasound.money](https://ultrasound.money/) — ETH supply and burn tracking
