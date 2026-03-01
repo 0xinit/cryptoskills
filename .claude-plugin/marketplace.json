@@ -16,6 +16,12 @@
       "category": "DeFi"
     },
     {
+      "name": "account-abstraction",
+      "source": "./skills/account-abstraction",
+      "description": "ERC-4337 and EIP-7702 unified reference — EntryPoint v0.7 architecture, UserOperation lifecycle, bundler and paymaster roles, EIP-7702 EOA delegation (Type 0x04 transactions), combined ERC-4337 + EIP-7702 flows, paymaster patterns (verifying, ERC-20, sponsoring), permissionless.js SDK, ZeroDev Kernel, session keys (ERC-7579), gas abstraction, and stack selection guidance.",
+      "category": "Infrastructure"
+    },
+    {
       "name": "aptos",
       "source": "./skills/aptos",
       "description": "Aptos Move-based L1 development — Move modules with global storage, resource accounts, Aptos SDK (@aptos-labs/ts-sdk), Coin standard, Token V2 (Digital Assets), view functions, multi-agent transactions, gas estimation, and Block-STM parallel execution.",
@@ -170,6 +176,12 @@
       "source": "./skills/foundry",
       "description": "Foundry toolkit for Solidity development — forge (build/test), cast (chain interaction), anvil (local node), and chisel (REPL). Covers project setup, testing patterns (unit, fuzz, invariant, fork), deployment via forge script, contract verification, gas optimization, and debugging. Works on any EVM chain.",
       "category": "Dev Tools"
+    },
+    {
+      "name": "frontend-ux",
+      "source": "./skills/frontend-ux",
+      "description": "dApp frontend UX patterns and production readiness — wallet connection flows (RainbowKit, multi-state), four-state transaction lifecycle, error handling taxonomy (4001 user rejection, insufficient funds, revert decoding), gas estimation with USD display, network switching, approval patterns (infinite vs exact, Permit2), mobile wallet support (WalletConnect v2, EIP-6963), and production QA checklist.",
+      "category": "Frontend"
     },
     {
       "name": "glam",
@@ -394,6 +406,12 @@
       "category": "DeFi"
     },
     {
+      "name": "scaffold-eth-2",
+      "source": "./skills/scaffold-eth-2",
+      "description": "Full-stack dApp development framework — quick start with npx create-eth@latest, Foundry/Hardhat monorepo, custom React hooks (useScaffoldWriteContract, useScaffoldReadContract, useDeployedContractInfo, useTransactor), contract hot reload, auto-generated debug page, three-phase build (Local to Testnet to Production), external contract integration, and deployment patterns.",
+      "category": "Dev Tools"
+    },
+    {
       "name": "sei",
       "source": "./skills/sei",
       "description": "Sei parallelized EVM L1 — parallel transaction execution, SeiDB optimistic storage, native order matching engine, twin-turbo consensus, EVM and CosmWasm interop via pointer contracts, associated balances, and precompile contracts for staking, governance, and IBC.",
@@ -512,6 +530,12 @@
       "source": "./skills/wormhole",
       "description": "Wormhole cross-chain messaging and token transfers — NTT (Native Token Transfers) framework, VAA (Verified Action Approvals), guardian network, automatic and manual relayers, Wormhole Queries for cross-chain reads, and Standard Relayer integration. Covers Wormhole SDK, contract interfaces, and deployment across Ethereum, Solana, Arbitrum, Base, and Optimism.",
       "category": "Cross-Chain"
+    },
+    {
+      "name": "x402",
+      "source": "./skills/x402",
+      "description": "HTTP 402 payment protocol for AI agent commerce — three-actor model (Client, Resource Server, Facilitator), ERC-3009 transferWithAuthorization, server middleware (@x402/express), client patterns in TypeScript and Python, facilitator integration, agent-to-agent payments, pricing strategies, and replay protection. Works on Base, Ethereum, Arbitrum, Optimism, Polygon, and Solana.",
+      "category": "AI Agents"
     },
     {
       "name": "zksync",
