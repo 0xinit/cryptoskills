@@ -46,6 +46,12 @@
       "category": "L2 & Alt-L1"
     },
     {
+      "name": "brian-api",
+      "source": "./skills/brian-api",
+      "description": "Brian API — natural language to executable Web3 transactions. Convert text intents into swap, bridge, transfer, deposit, withdraw, and borrow transactions across multiple chains. REST API, LangChain integration, and knowledge queries for DeFi protocol data.",
+      "category": "AI Agents"
+    },
+    {
       "name": "certora",
       "source": "./skills/certora",
       "description": "Certora formal verification with CVL — write mathematical proofs for smart contract correctness. Rules, invariants, ghost variables, hooks, parametric rules, multi-contract verification, and counter-example debugging.",
@@ -62,6 +68,12 @@
       "source": "./skills/code-recon",
       "description": "Deep architectural context building for security audits. Use when conducting security reviews, building codebase understanding, mapping trust boundaries, or preparing for vulnerability analysis. Inspired by Trail of Bits methodology.",
       "category": "Security"
+    },
+    {
+      "name": "coinbase-agentkit",
+      "source": "./skills/coinbase-agentkit",
+      "description": "Coinbase AgentKit — build AI agents with onchain capabilities. Wallet creation/management, token transfers, swaps, contract deployment, NFT minting, and ENS registration. Framework integrations with LangChain and Vercel AI SDK. Supports Base, Ethereum, Arbitrum, and Polygon.",
+      "category": "AI Agents"
     },
     {
       "name": "coingecko",
@@ -124,6 +136,12 @@
       "category": "Infrastructure"
     },
     {
+      "name": "eliza",
+      "source": "./skills/eliza",
+      "description": "elizaOS multi-agent AI framework — character files, plugin system, platform connectors, trust scoring, RAG knowledge, and Solana wallet integration. Use when building autonomous AI agents with personality, multi-platform presence, or onchain capabilities.",
+      "category": "AI Agents"
+    },
+    {
       "name": "ens",
       "source": "./skills/ens",
       "description": "ENS (Ethereum Name Service) development — name resolution, registration via commit-reveal, text/address records, reverse resolution, avatar retrieval, subdomains, and Name Wrapper integration. Covers viem's built-in ENS actions, resolver patterns, CCIP-Read for offchain data, and contract interactions with the ENS registry on Ethereum mainnet.",
@@ -160,6 +178,18 @@
       "category": "DeFi"
     },
     {
+      "name": "gmx",
+      "source": "./skills/gmx",
+      "description": "GMX V2 perpetual and spot DEX — spot swaps, perpetual trading (50x leverage), liquidity provision (GM tokens), Chainlink Data Streams, isolated pools, position management, and multicall patterns. TypeScript SDK (@gmx-io/sdk) and direct contract interactions on Arbitrum and Avalanche.",
+      "category": "Trading"
+    },
+    {
+      "name": "goat",
+      "source": "./skills/goat",
+      "description": "GOAT (Great Onchain Agent Toolkit) — 200+ protocol integrations across 30+ chains. Tool creation, framework adapters (AI SDK/LangChain/Eliza), DeFi actions (swap/bridge/transfer), wallet management, and modular plugin architecture for building onchain AI agents.",
+      "category": "AI Agents"
+    },
+    {
       "name": "halmos",
       "source": "./skills/halmos",
       "description": "Halmos symbolic testing for Foundry — write symbolic Solidity tests that mathematically verify properties. Foundry-native (no new language), bounded model checking, counter-example generation, and lightweight alternative to Certora.",
@@ -182,6 +212,12 @@
       "source": "./skills/hyperlane",
       "description": "Hyperlane permissionless interoperability — Mailbox messaging, Interchain Security Modules (ISM), Warp Routes for token bridging, hooks, interchain accounts, and permissionless deployment to any chain. Covers Hyperlane SDK, contract interfaces, and custom security configurations.",
       "category": "Cross-Chain"
+    },
+    {
+      "name": "hyperliquid",
+      "source": "./skills/hyperliquid",
+      "description": "Hyperliquid perpetual futures DEX — order placement (market/limit/trigger/TWAP), position management, leverage up to 50x, WebSocket streaming, vault strategies, and L1 architecture. REST and WebSocket APIs with wallet signing authentication. Python SDK and TypeScript patterns.",
+      "category": "Trading"
     },
     {
       "name": "jupiter",
@@ -446,6 +482,12 @@
       "source": "./skills/uniswap",
       "description": "Uniswap V3 and V4 DEX integration — exact input/output swaps via SwapRouter02 and UniversalRouter, concentrated liquidity positions via NonfungiblePositionManager, V4 hook architecture with PoolManager singleton, pool state reads (slot0, ticks, TWAP), and Permit2 token approvals. Covers Ethereum, Arbitrum, Base, and Optimism.",
       "category": "DeFi"
+    },
+    {
+      "name": "vertex",
+      "source": "./skills/vertex",
+      "description": "Vertex Protocol cross-chain DEX — spot trading, perpetual contracts, money markets (lend/borrow), Vertex Edge cross-chain architecture, gas-free trading, Python SDK, WebSocket/REST gateway, subscriptions API, trigger orders, and margin management.",
+      "category": "Trading"
     },
     {
       "name": "viem",
