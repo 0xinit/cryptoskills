@@ -484,6 +484,115 @@ function _getCounterStorage() private pure returns (CounterStorage storage $) {
 - Replaces the fragile "append-only" storage pattern used by older upgradeable contracts.
 - OpenZeppelin v5+ uses EIP-7201 by default for all upgradeable contracts.
 
+## Agent Identity & Reputation (ERC-8004)
+
+ERC-8004 defines onchain identity for AI agents — three registries for agent discovery, reputation, and validation.
+
+### Three Registries
+
+**Identity Registry**: Agents register their name, supported skills, service endpoints, and metadata. Think DNS for AI agents.
+
+```solidity
+interface IAgentIdentityRegistry {
+    struct AgentIdentity {
+        string name;
+        string[] skills;
+        string endpoint;
+        bytes metadata;
+    }
+
+    function registerAgent(AgentIdentity calldata identity) external returns (uint256 agentId);
+    function getAgent(uint256 agentId) external view returns (AgentIdentity memory);
+    function updateAgent(uint256 agentId, AgentIdentity calldata identity) external;
+    function resolveByName(string calldata name) external view returns (uint256 agentId);
+
+    event AgentRegistered(uint256 indexed agentId, address indexed owner, string name);
+}
+```
+
+**Reputation Registry**: Immutable feedback after agent interactions. Cannot be modified or deleted — only appended. Score aggregation is left to consumers.
+
+```solidity
+interface IAgentReputationRegistry {
+    function submitFeedback(uint256 agentId, uint8 score, bytes calldata details) external;
+    function getFeedbackCount(uint256 agentId) external view returns (uint256);
+
+    event FeedbackSubmitted(uint256 indexed agentId, address indexed reviewer, uint8 score);
+}
+```
+
+**Validation Registry**: Independent third-party verification of agent capabilities. Validators stake reputation on their assessments.
+
+```solidity
+interface IAgentValidationRegistry {
+    function validateAgent(uint256 agentId, bytes calldata proof) external;
+    function isValidated(uint256 agentId, address validator) external view returns (bool);
+
+    event AgentValidated(uint256 indexed agentId, address indexed validator);
+}
+```
+
+**Integration with x402**: Agents registered via ERC-8004 can use their identity for x402 payment authentication — the agent's onchain identity serves as both discovery mechanism and payment credential. See the `x402` skill for payment flow details.
+
+## EOA Delegation (EIP-7702)
+
+EIP-7702 (Pectra, May 2025) lets EOAs temporarily or persistently delegate their execution to smart contract code. This bridges the gap between EOAs and smart contract accounts.
+
+### Transaction Format
+
+Type `0x04` transactions include an `authorizationList` — an array of signed authorization tuples:
+
+```
+authorization_tuple = (chain_id, address, nonce, y_parity, r, s)
+```
+
+When processed, the EOA's code is set to a delegation designator: `0xef0100 || address`. Any calls to the EOA now execute the delegated contract's code, with the EOA as `msg.sender` and `address(this)`.
+
+### Key Mechanics
+
+| Property | Behavior |
+|----------|----------|
+| Delegation scope | Per-transaction (reverts after) or persistent (until revoked) |
+| Code execution | Delegated contract runs in EOA's context (like delegatecall) |
+| Storage | Uses EOA's storage slots |
+| msg.sender | Callers see the EOA address |
+| Revocation | Set delegation to `address(0)` |
+| Nonce | Authorization nonce is separate from tx nonce |
+
+### viem Integration
+
+```typescript
+import { walletClient } from './config';
+import { parseEther } from 'viem';
+import { signAuthorization } from 'viem/experimental';
+
+// Sign authorization to delegate to a batch executor
+const authorization = await walletClient.signAuthorization({
+  contractAddress: '0xBatchExecutor...', // contract with batch logic
+});
+
+// Execute batch via delegated code
+const hash = await walletClient.writeContract({
+  address: walletClient.account.address, // call yourself (delegated)
+  abi: batchExecutorAbi,
+  functionName: 'executeBatch',
+  args: [[
+    { target: '0xTokenA...', value: 0n, data: approveCalldata },
+    { target: '0xRouter...', value: 0n, data: swapCalldata },
+  ]],
+  authorizationList: [authorization],
+});
+```
+
+### Interaction with ERC-4337
+
+EIP-7702 and ERC-4337 are complementary:
+- **EIP-7702 alone**: EOA gets smart account features (batching, sponsorship) but no persistent account abstraction infrastructure
+- **ERC-4337 alone**: Full AA but requires deploying a new smart account contract
+- **Combined**: Bundlers accept `eip7702Auth` on UserOperations — EOAs can participate in the ERC-4337 ecosystem without migrating to a new address
+
+See the `account-abstraction` skill for full implementation patterns.
+
 ## Quick Lookup Table
 
 | Number | Name | Type | Status | Summary |
@@ -503,13 +612,17 @@ function _getCounterStorage() private pure returns (CounterStorage storage $) {
 | EIP-2098 | Compact Signatures | EIP | Final | 64-byte signatures (r + yParityAndS) |
 | ERC-2612 | Permit | ERC | Final | Gasless ERC-20 approvals via EIP-712 signature |
 | EIP-2930 | Access Lists | EIP | Final | Declare accessed addresses/slots for gas savings |
+| ERC-3009 | Transfer With Authorization | ERC | Final | Gasless token transfers via EIP-712 signatures |
 | ERC-4337 | Account Abstraction | ERC | Draft | Smart accounts via EntryPoint + Bundler |
 | ERC-4626 | Tokenized Vault | ERC | Final | Standardized yield vault (deposit/withdraw/redeem) |
 | EIP-4844 | Blob Transactions | EIP | Final | L2 data availability via blobs (~128 KB, pruned) |
 | ERC-6900 | Modular Accounts v1 | ERC | Draft | Plugin architecture for smart accounts |
 | EIP-7201 | Namespaced Storage | EIP | Final | Deterministic storage slots for upgradeable contracts |
 | ERC-7579 | Modular Accounts v2 | ERC | Draft | Minimal modular smart account interface |
-| EIP-7702 | EOA Code Setting | EIP | Final | EOAs delegate to contract code per-transaction |
+| EIP-7594 | PeerDAS | EIP | Final | Peer Data Availability Sampling for blob scaling |
+| EIP-7702 | Set EOA Account Code | EIP | Final | EOA delegation to smart contract code |
+| EIP-7951 | secp256r1 Precompile | EIP | Final | Native P-256/passkey signature verification |
+| ERC-8004 | Agent Identity Registry | ERC | Draft | Onchain identity, reputation, and validation for AI agents |
 
 ## References
 
@@ -530,4 +643,9 @@ function _getCounterStorage() private pure returns (CounterStorage storage $) {
 - [EIP-1822](https://eips.ethereum.org/EIPS/eip-1822) — UUPS
 - [EIP-7201](https://eips.ethereum.org/EIPS/eip-7201) — Namespaced Storage
 - [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) — Set EOA Account Code
+- [ERC-8004: Agent Identity Registry](https://eips.ethereum.org/EIPS/eip-8004) — Onchain agent identity standard
+- [ERC-3009: Transfer With Authorization](https://eips.ethereum.org/EIPS/eip-3009) — Gasless token transfers
+- [EIP-7702: Set EOA Account Code](https://eips.ethereum.org/EIPS/eip-7702) — EOA delegation
+- [EIP-7594: PeerDAS](https://eips.ethereum.org/EIPS/eip-7594) — Data availability sampling
+- [EIP-7951: secp256r1 Precompile](https://eips.ethereum.org/EIPS/eip-7951) — Passkey support
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts) — Reference implementations
