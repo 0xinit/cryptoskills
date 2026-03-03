@@ -594,6 +594,18 @@ function getSafePrice(AggregatorV3Interface feed) internal view returns (uint256
 - Always allowlist source chains and sender addresses on your receiver contract. Without this, anyone on any supported chain can send messages to your contract.
 - Handle message failures gracefully. If `_ccipReceive` reverts, the message can be manually executed later, but your contract should not end up in an inconsistent state from partial execution.
 
+## Alternative Oracles
+
+For use cases where Chainlink's push model isn't optimal, consider these alternatives:
+
+**Pyth Network** (`pyth-evm` skill) — Pull oracle model where consumers fetch and submit price updates on-demand. Best for: sub-second price freshness (~400ms on Pythnet), confidence intervals (statistical uncertainty bounds), MEV-protected liquidations via Express Relay, and non-EVM chains (Solana, Sui, Aptos). Trade-off: consumers pay gas for price updates (~120-150K gas per feed).
+
+**When to use Chainlink vs Pyth:**
+- **Chainlink**: Zero-cost reads (DON sponsors updates), broadest EVM feed coverage (1000+), VRF/CCIP/Automation ecosystem, well-established data quality
+- **Pyth**: Sub-second freshness, confidence intervals, historical price verification, MEV protection, 50+ EVM chains + non-EVM
+
+See also: `redstone` skill for another pull oracle alternative.
+
 ## References
 
 - [Chainlink Price Feed Addresses](https://docs.chain.link/data-feeds/price-feeds/addresses)
