@@ -614,6 +614,81 @@ contract SpendingGuard is BaseGuard {
 - Verify Safe proxy points to a legitimate singleton using `cast storage <safe> 0x0` -- slot 0 stores the singleton address
 - Use `SafeL2` singleton on L2 chains for proper event emission
 
+## ERC-7579 Modular Smart Accounts
+
+ERC-7579 defines a standard interface for modular smart accounts. It specifies four module types -- validators, executors, hooks, and fallback handlers -- that extend account functionality without deploying new proxy contracts. Safe supports ERC-7579 through the Safe7579 adapter.
+
+### Safe7579 Adapter
+
+Safe7579 bridges Safe's native Module/Guard system and ERC-7579's standardized module interface. It installs as both a Safe Module and Fallback Handler on an existing Safe, enabling it to accept any ERC-7579-compliant module. Existing Safes can adopt ERC-7579 modules without migration.
+
+### Module Types
+
+| Type | Role | Example |
+|------|------|---------|
+| Validator | Controls who can execute UserOps (signature/auth logic) | OwnableValidator, WebAuthn (passkeys) |
+| Executor | Performs automated actions on behalf of the Safe | Scheduled transfers, auto-compounding |
+| Hook | Pre/post execution checks on every transaction | Spending limits, address allowlists |
+| Fallback | Extends the Safe interface with new function selectors | Custom callback handlers |
+
+### Key Modules (Rhinestone)
+
+- **OwnableValidator** -- simple ECDSA owner check, single or multi-owner
+- **SmartSessions** -- session keys with policies (time window, value cap, contract/function allowlist)
+- **WebAuthn Validator** -- passkey-based signing via the WebAuthn standard
+- **Social Recovery** -- guardian-based recovery with threshold and timelock
+- **Scheduled Orders** -- cron-like automated execution via keeper network
+
+### Module Registry (ERC-7484)
+
+The Module Registry at `0x000000000069E2a187AEFFb852bF3cCdC95151B2` (same address all EVM chains) provides on-chain attestations for module safety. Rhinestone serves as the primary attester. Safes can require registry attestation before module installation as a trust anchor.
+
+### Installing a Module
+
+```typescript
+import { installModule } from "@rhinestone/module-sdk";
+import { sendUserOperation } from "permissionless";
+import { erc7579Actions } from "permissionless/actions/erc7579";
+
+const smartAccountClient = walletClient.extend(
+  erc7579Actions({ entryPoint: { address: entryPoint07Address, version: "0.7" } })
+);
+
+const txHash = await smartAccountClient.installModule({
+  type: "validator",
+  address: "0xOwnableValidatorAddress",
+  context: encodePacked(["address"], [ownerAddress]),
+});
+```
+
+### Security Considerations
+
+**Storage collisions (ERC-7201):** Modules sharing storage slots with the Safe proxy can corrupt state. All ERC-7579 modules MUST use ERC-7201 namespaced storage to isolate their state from the Safe's core storage layout.
+
+**Fallback handler hijacking:** A malicious fallback module intercepts ANY unrecognized function call to the Safe. An attacker who installs a rogue fallback can silently redirect calls meant for legitimate interfaces.
+
+**`onInstall` reentrancy:** The module `onInstall` callback executes in Safe context during `execTransactionFromModule`. A malicious module can call back into the Safe during installation to add owners, change threshold, or drain funds before the installation transaction completes.
+
+**Validator front-running:** An attacker observing `validateUserOp` calls on the public mempool can front-run to change validator state (e.g., rotate the approved signer) before the bundler's transaction lands.
+
+Additional risks:
+- Module installation requires owner threshold approval -- a compromised owner set can install malicious modules
+- Malicious validators can approve arbitrary UserOps; malicious executors can drain the Safe
+- A hook that reverts blocks ALL Safe transactions including module removal -- test hooks on a fork first
+- Modules that revert in `onUninstall` become permanently irremovable
+
+### When to Use ERC-7579 Modules
+
+| Scenario | Approach |
+|----------|----------|
+| Simple multisig, no automation | Direct Safe (protocol-kit) |
+| Session keys for dApp interactions | Safe + SmartSessions module |
+| Automated recurring actions | Safe + Scheduled Orders executor |
+| Passkey authentication | Safe + WebAuthn validator |
+| Spending policy enforcement | Safe + hook modules |
+
+> For the full module catalog, installation walkthrough, and production addresses, see `docs/erc-7579-modules.md`. For general account abstraction context (EntryPoint, bundlers, paymasters), see the `account-abstraction` skill.
+
 ## References
 
 - [Safe SDK Documentation](https://docs.safe.global/sdk/overview)
