@@ -1,0 +1,61 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-hover: #27272a;
+  --border: #27272a;
+  --muted: #a1a1aa;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Syntax highlighting overrides */
+[data-rehype-pretty-code-figure] pre {
+  @apply overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm leading-relaxed;
+}
+
+[data-rehype-pretty-code-figure] code {
+  @apply grid;
+}
+
+[data-rehype-pretty-code-figure] [data-line] {
+  @apply px-1;
+}
+
+/* Inline code */
+:not(pre) > code {
+  @apply rounded bg-zinc-800 px-1.5 py-0.5 text-sm text-zinc-200;
+}
+
+/* Prose overrides for dark mode */
+.prose {
+  --tw-prose-body: #d4d4d8;
+  --tw-prose-headings: #fafafa;
+  --tw-prose-links: #818cf8;
+  --tw-prose-bold: #fafafa;
+  --tw-prose-code: #e4e4e7;
+  --tw-prose-pre-bg: #09090b;
+  --tw-prose-td-borders: #3f3f46;
+  --tw-prose-th-borders: #52525b;
+}
+
+.prose table {
+  @apply text-sm;
+}
+
+.prose th {
+  @apply text-left font-semibold text-zinc-200;
+}
+
+.prose td {
+  @apply text-zinc-400;
+}
