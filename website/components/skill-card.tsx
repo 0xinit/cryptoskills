@@ -1,56 +1,75 @@
 import Link from "next/link";
 import type { RegistrySkill } from "@/lib/registry";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  DeFi: "bg-emerald-900/50 text-emerald-300 border-emerald-800",
-  Infrastructure: "bg-blue-900/50 text-blue-300 border-blue-800",
-  "Dev Tools": "bg-amber-900/50 text-amber-300 border-amber-800",
-  Trading: "bg-rose-900/50 text-rose-300 border-rose-800",
-  Oracles: "bg-purple-900/50 text-purple-300 border-purple-800",
-  "Cross-Chain": "bg-cyan-900/50 text-cyan-300 border-cyan-800",
-  "NFT & Tokens": "bg-pink-900/50 text-pink-300 border-pink-800",
-  Security: "bg-red-900/50 text-red-300 border-red-800",
-  "L2 & Alt-L1": "bg-orange-900/50 text-orange-300 border-orange-800",
-  Frontend: "bg-violet-900/50 text-violet-300 border-violet-800",
-  "AI Agents": "bg-teal-900/50 text-teal-300 border-teal-800",
-  DevOps: "bg-slate-800/50 text-slate-300 border-slate-700",
+const CATEGORY_DOTS: Record<string, string> = {
+  DeFi: "bg-emerald-400",
+  Infrastructure: "bg-blue-400",
+  "Dev Tools": "bg-amber-400",
+  Trading: "bg-rose-400",
+  Oracles: "bg-violet-400",
+  "Cross-Chain": "bg-cyan-400",
+  "NFT & Tokens": "bg-pink-400",
+  Security: "bg-red-400",
+  "L2 & Alt-L1": "bg-orange-400",
+  Frontend: "bg-fuchsia-400",
+  "AI Agents": "bg-teal-400",
+  DevOps: "bg-slate-400",
 };
 
-const DEFAULT_COLOR = "bg-zinc-800/50 text-zinc-300 border-zinc-700";
-
-export function SkillCard({ skill }: { skill: RegistrySkill }) {
-  const categoryColor = CATEGORY_COLORS[skill.category] || DEFAULT_COLOR;
+export function SkillCard({
+  skill,
+  index,
+}: {
+  skill: RegistrySkill;
+  index: number;
+}) {
+  const dotColor = CATEGORY_DOTS[skill.category] || "bg-zinc-400";
 
   return (
     <Link
       href={`/skills/${skill.name}`}
-      className="group flex flex-col rounded-lg border border-zinc-800 bg-zinc-900 p-5 transition-colors hover:border-zinc-700 hover:bg-zinc-800/80"
+      className="skill-card card-animate group block rounded-lg p-5"
+      style={{ animationDelay: `${Math.min(index * 30, 600)}ms` }}
     >
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <h3 className="font-mono text-lg font-semibold text-zinc-100 group-hover:text-indigo-400 transition-colors">
+      <div className="mb-3 flex items-center gap-2.5">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
+        <h3
+          className="truncate text-sm font-semibold text-[var(--text-primary)] transition-colors group-hover:text-[var(--accent)]"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
           {skill.name}
         </h3>
-        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap ${categoryColor}`}>
-          {skill.category}
-        </span>
       </div>
 
-      <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-zinc-400">
+      <p className="mb-4 line-clamp-2 text-[13px] leading-relaxed text-[var(--text-secondary)]">
         {skill.description}
       </p>
 
-      <div className="mt-auto flex flex-wrap gap-1.5">
-        <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-500">
-          {skill.chain}
-        </span>
-        {skill.tags.slice(0, 3).map((tag) => (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <span
-            key={tag}
-            className="rounded bg-zinc-800/60 px-2 py-0.5 text-xs text-zinc-500"
+            className="rounded border border-[var(--border)] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[var(--text-muted)]"
+            style={{ fontFamily: "var(--font-mono)" }}
           >
-            {tag}
+            {skill.chain}
           </span>
-        ))}
+          <span className="text-[10px] text-[var(--text-muted)]">
+            {skill.category}
+          </span>
+        </div>
+        <svg
+          className="h-3.5 w-3.5 text-[var(--text-muted)] opacity-0 transition-all group-hover:translate-x-0.5 group-hover:text-[var(--accent)] group-hover:opacity-100"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
       </div>
     </Link>
   );

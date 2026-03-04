@@ -138,7 +138,7 @@
     {
       "name": "eip-reference",
       "source": "./skills/eip-reference",
-      "description": "Quick reference for essential EIPs and ERCs. Covers token standards, signature schemes, account abstraction, and chain-level EIPs with implementation patterns. Use when you need the correct interface, gotcha, or specification detail for any major Ethereum standard.",
+      "description": "Ethereum Improvement Proposals and ERC standards reference — ERC-20, ERC-721, ERC-1155, ERC-4626, ERC-2981, EIP-712, EIP-1559, EIP-2612 (Permit), EIP-4337 (Account Abstraction), EIP-4844 (Proto-Danksharding), EIP-7702 (EOA Delegation), ERC-8004 (Agent Identity). Quick lookup, interface signatures, and implementation patterns.",
       "category": "Infrastructure"
     },
     {
@@ -376,6 +376,12 @@
       "category": "L2 & Alt-L1"
     },
     {
+      "name": "polymarket",
+      "source": "./skills/polymarket",
+      "description": "Polymarket CLOB prediction market integration — authentication (L1/L2 HMAC signing), order placement (limit, market, GTC, GTD, FOK), orderbook reading, market data (Gamma API), WebSocket subscriptions, CTF conditional token operations (split, merge, redeem), gasless trading via relayer, and builder program attribution.",
+      "category": "Trading"
+    },
+    {
       "name": "privy",
       "source": "./skills/privy",
       "description": "Embedded wallet SDK for dApps with social login, email, and passkey auth. Covers React SDK, server-side JWT verification, wallet management, and smart wallet integration. Acquired by Stripe (2025).",
@@ -470,6 +476,12 @@
       "source": "./skills/solana-kit-migration",
       "description": "Helps developers understand when to use @solana/kit vs @solana/web3.js (v1), provides migration guidance, API mappings, and handles edge cases for Solana JavaScript SDK transitions",
       "category": "Dev Tools"
+    },
+    {
+      "name": "solana-simd",
+      "source": "./skills/solana-simd",
+      "description": "Solana Improvement Documents reference — accounts model, PDAs, CPIs, Token Extensions (Token-2022), priority fees (SIMD-0096), address lookup tables, versioned transactions, rent mechanics, and key SIMD proposals (0033 fee markets, 0047 syscall, 0096 priority fees, 0172 staking).",
+      "category": "Infrastructure"
     },
     {
       "name": "solidity-security",

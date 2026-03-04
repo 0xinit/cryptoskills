@@ -1,35 +1,118 @@
 ---
 name: eip-reference
-description: Quick reference for essential EIPs and ERCs. Covers token standards, signature schemes, account abstraction, and chain-level EIPs with implementation patterns. Use when you need the correct interface, gotcha, or specification detail for any major Ethereum standard.
+description: "Ethereum Improvement Proposals and ERC standards reference — ERC-20, ERC-721, ERC-1155, ERC-4626, ERC-2981, EIP-712, EIP-1559, EIP-2612 (Permit), EIP-4337 (Account Abstraction), EIP-4844 (Proto-Danksharding), EIP-7702 (EOA Delegation), ERC-8004 (Agent Identity). Quick lookup, interface signatures, and implementation patterns."
 license: Apache-2.0
 metadata:
-  author: cryptoskills
+  author: 0xinit
   version: "1.0"
-  chain: multichain
+  chain: ethereum
   category: Infrastructure
 tags:
   - eip
   - erc
-  - standards
-  - tokens
-  - signatures
+  - ethereum-standards
+  - erc-20
+  - erc-721
+  - erc-1155
+  - eip-712
+  - eip-4337
+  - eip-7702
 ---
 
 # EIP / ERC Reference
 
-Canonical reference for the Ethereum standards that matter most to smart contract and dApp developers. Provides correct interfaces, key behavioral rules, and the gotchas that trip up both humans and LLMs.
+Canonical reference for Ethereum Improvement Proposals and ERC standards. Covers correct interfaces, behavioral rules, implementation patterns, and the gotchas that trip up humans and LLMs alike. Use this when you need the right function signature, the correct domain separator construction, or the nuance that separates a working implementation from a buggy one.
 
 ## What You Probably Got Wrong
 
-> These misconceptions appear in LLM-generated code constantly. Fix your mental model before writing code.
+> These misconceptions appear in LLM-generated code constantly. Fix your mental model before writing a single line.
 
-- **EIP != ERC** — An EIP (Ethereum Improvement Proposal) is the proposal process. An ERC (Ethereum Request for Comments) is the subset of EIPs that define application-layer standards (tokens, signatures, wallets). ERC-20 started as EIP-20 and became ERC-20 upon acceptance. Chain-level changes like EIP-1559 stay as EIPs — they are never ERCs.
-- **ERC-20 `approve` has a race condition** — If Alice approves Bob for 100, then changes to 50, Bob can front-run: spend the 100, then spend the new 50, totaling 150. Mitigation: approve to 0 first, or use `increaseAllowance`/`decreaseAllowance` (OpenZeppelin), or use ERC-2612 `permit`. USDT requires resetting to 0 before setting a new nonzero allowance — it will revert otherwise.
-- **ERC-721 `transferFrom` skips receiver checks** — `transferFrom` does NOT call `onERC721Received` on the recipient. Tokens sent to contracts that cannot handle them are permanently locked. Use `safeTransferFrom` unless you have a specific reason not to (gas optimization in trusted contexts).
-- **EIP-712 domain separator MUST include `chainId`** — Omitting `chainId` from the `EIP712Domain` allows signature replay across chains. A signature valid on mainnet becomes valid on every fork and L2 that shares the contract address. Always include `chainId` and `verifyingContract`.
-- **ERC-4337 bundler != relayer** — A bundler packages `UserOperation` objects into a transaction and submits to the `EntryPoint`. A relayer (meta-transaction pattern) wraps a signed message into `msg.data` and calls a trusted forwarder. Different trust models, different gas accounting, different entry points. Do not conflate them.
-- **EIP-1559 `baseFee` is protocol-controlled, not user-set** — Users set `maxFeePerGas` and `maxPriorityFeePerGas`. The protocol sets `baseFee` per block based on gas utilization of the previous block. The base fee is burned, not paid to validators. The priority fee goes to the validator. Effective gas price = `min(baseFee + maxPriorityFeePerGas, maxFeePerGas)`.
-- **ERC-4626 share/asset math is rounding-sensitive** — `convertToShares` and `convertToAssets` must round in favor of the vault (down on deposit/mint, up on withdraw/redeem) to prevent share inflation attacks. First-depositor attacks exploit vaults that skip this.
+- **EIP != ERC** — An EIP (Ethereum Improvement Proposal) covers the entire proposal process. An ERC (Ethereum Request for Comments) is the subset of EIPs defining application-layer standards (tokens, signatures, wallets). ERC-20 started as EIP-20 and became ERC-20 upon acceptance. Chain-level changes like EIP-1559 stay as EIPs — they are never ERCs.
+- **ERC-20 `approve` has a race condition** — If Alice approves Bob for 100, then changes to 50, Bob can front-run: spend the original 100, then spend the new 50, totaling 150. Mitigation: approve to 0 first, use `increaseAllowance`/`decreaseAllowance`, or use ERC-2612 `permit`. USDT requires resetting to 0 before setting a new nonzero allowance — it reverts otherwise.
+- **ERC-721 `transferFrom` skips receiver checks** — `transferFrom` does NOT call `onERC721Received` on the recipient. Tokens sent to contracts that cannot handle them are permanently locked. Use `safeTransferFrom` unless you have a specific reason not to.
+- **EIP-712 domain separator MUST include `chainId`** — Omitting `chainId` from the `EIP712Domain` allows signature replay across chains. A signature valid on mainnet becomes valid on every fork and L2 sharing the contract address. Always include `chainId` and `verifyingContract`.
+- **ERC-4337 bundler != relayer** — A bundler packages `UserOperation` objects and submits to the `EntryPoint`. A relayer wraps a signed message and calls a trusted forwarder. Different trust models, different gas accounting, different entry points.
+- **EIP-1559 `baseFee` is protocol-controlled** — Users set `maxFeePerGas` and `maxPriorityFeePerGas`. The protocol sets `baseFee` per block. The base fee is burned, the priority fee goes to the validator. Confusing these causes incorrect gas estimation.
+- **ERC-4626 share/asset math is rounding-sensitive** — `convertToShares` and `convertToAssets` must round in favor of the vault to prevent share inflation attacks. First-depositor attacks exploit vaults that skip this.
+- **EIP-2612 permit signatures can be front-run** — The approval still takes effect, but the original `permit` call reverts. Always check allowance before calling permit.
+- **ERC-1155 has no per-token approval** — Only `setApprovalForAll` exists (operator model). There is no `approve(tokenId)` like ERC-721.
+- **`decimals()` is OPTIONAL** — Part of `IERC20Metadata`, not `IERC20`. USDC uses 6, WBTC uses 8. Never assume 18.
+
+## How to Look Up Any EIP
+
+When a user asks about ANY EIP or ERC — even ones not covered in this skill — fetch the full spec on demand.
+
+### Step 1: Determine if it's an EIP or ERC
+
+- **ERC** (ERC-20, ERC-721, ERC-1155, ERC-4626, etc.) — application-level standards. Repo: `ethereum/ERCs`
+- **EIP** (EIP-1559, EIP-4844, EIP-7702, etc.) — core/networking/interface changes. Repo: `ethereum/EIPs`
+- Rule of thumb: token standards and contract interfaces are ERCs. Protocol-level changes are EIPs.
+- If unsure, try ERC first (more common in user queries), fall back to EIP.
+
+### Step 2: Fetch the raw spec
+
+**For ERCs** (application-level — tokens, wallets, contract standards):
+
+```
+WebFetch: https://raw.githubusercontent.com/ethereum/ERCs/master/ERCS/erc-{number}.md
+```
+
+**For EIPs** (core/networking — gas, consensus, transaction types):
+
+```
+WebFetch: https://raw.githubusercontent.com/ethereum/EIPs/master/EIPS/eip-{number}.md
+```
+
+Examples:
+- ERC-20 → `https://raw.githubusercontent.com/ethereum/ERCs/master/ERCS/erc-20.md`
+- ERC-4337 → `https://raw.githubusercontent.com/ethereum/ERCs/master/ERCS/erc-4337.md`
+- EIP-1559 → `https://raw.githubusercontent.com/ethereum/EIPs/master/EIPS/eip-1559.md`
+- EIP-7702 → `https://raw.githubusercontent.com/ethereum/EIPs/master/EIPS/eip-7702.md`
+
+### Step 3: Parse and summarize
+
+The fetched markdown has YAML frontmatter (`eip`, `title`, `status`, `type`, `category`, `author`, `created`, `requires`) followed by sections: Simple Summary, Abstract, Motivation, Specification, Rationale, Backwards Compatibility, Security Considerations, Copyright.
+
+Extract and present: title, status, what it does, key interfaces/types, and security considerations.
+
+### Alternative methods
+
+```bash
+# GitHub CLI (requires auth)
+gh api repos/ethereum/ERCs/contents/ERCS/erc-{number}.md --jq '.content' | base64 -d
+gh api repos/ethereum/EIPs/contents/EIPS/eip-{number}.md --jq '.content' | base64 -d
+```
+
+### Sources
+
+| Source | URL | Best for |
+|--------|-----|----------|
+| EIPs repo | https://github.com/ethereum/EIPs | Core/networking specs, raw markdown |
+| ERCs repo | https://github.com/ethereum/ERCs | Token/application standards, raw markdown |
+| EIPs website | https://eips.ethereum.org/all | Browsing all EIPs with status filters |
+
+- Raw EIP specs: `https://raw.githubusercontent.com/ethereum/EIPs/master/EIPS/eip-{number}.md`
+- Raw ERC specs: `https://raw.githubusercontent.com/ethereum/ERCs/master/ERCS/erc-{number}.md`
+- Browse all: https://eips.ethereum.org/all
+
+## EIP vs ERC
+
+| Type | Scope | Examples |
+|------|-------|---------|
+| **EIP** | Protocol-level changes (consensus, networking, EVM) | EIP-1559, EIP-4844, EIP-7702 |
+| **ERC** | Application-level standards (tokens, wallets, signing) | ERC-20, ERC-721, ERC-4337 |
+
+ERCs are a subset of EIPs. "ERC-20" and "EIP-20" refer to the same proposal. The ERC designation applies once the proposal reaches application-layer Final status.
+
+### Status Lifecycle
+
+```
+Draft -> Review -> Last Call -> Final
+                             -> Stagnant (no activity 6+ months)
+                             -> Withdrawn
+```
+
+Only **Final** status EIPs should be relied on in production. Draft/Review standards may change without notice.
 
 ## Token Standards
 
@@ -52,16 +135,30 @@ interface IERC20 {
 ```
 
 **Key rules:**
-- `transfer` and `transferFrom` MUST return `true` on success. Some tokens (USDT) do not return a value — use OpenZeppelin `SafeERC20` to handle both.
-- `decimals()` is OPTIONAL per the spec (part of `IERC20Metadata`). Never assume 18 — USDC and USDT use 6, WBTC uses 8.
-- Zero-address transfers SHOULD emit `Transfer` events. Minting is `Transfer(address(0), to, amount)`. Burning is `Transfer(from, address(0), amount)`.
+- `transfer` and `transferFrom` MUST return `true` on success. Some tokens (USDT) do not return a value — use OpenZeppelin `SafeERC20`.
+- `decimals()` is OPTIONAL (part of `IERC20Metadata`). USDC/USDT use 6, WBTC uses 8.
+- Minting: `Transfer(address(0), to, amount)`. Burning: `Transfer(from, address(0), amount)`.
+- Fee-on-transfer tokens deduct on every transfer — always measure `balanceOf` before/after.
+
+```typescript
+import { erc20Abi, formatUnits } from 'viem';
+
+const balance = await publicClient.readContract({
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+  abi: erc20Abi,
+  functionName: 'balanceOf',
+  args: ['0xYourAddress...'],
+});
+// balance is bigint in base units — format with correct decimals
+const formatted = formatUnits(balance, 6); // USDC has 6 decimals
+```
 
 ### ERC-721 — Non-Fungible Token
 
 Each token has a unique `tokenId`. Ownership is 1:1.
 
 ```solidity
-interface IERC721 {
+interface IERC721 is IERC165 {
     function balanceOf(address owner) external view returns (uint256);
     function ownerOf(uint256 tokenId) external view returns (address);
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
@@ -79,16 +176,17 @@ interface IERC721 {
 ```
 
 **Key rules:**
-- `safeTransferFrom` calls `IERC721Receiver.onERC721Received` on the recipient if it is a contract. Reverts if the receiver does not implement it or returns the wrong selector.
-- `transferFrom` does NOT perform receiver checks. Tokens can be permanently lost if sent to a contract that cannot handle them.
-- `approve` clears on transfer — approved address is reset when the token moves.
+- `safeTransferFrom` calls `IERC721Receiver.onERC721Received` on contract recipients. Reverts if not implemented or wrong selector returned.
+- `transferFrom` skips receiver checks — tokens can be permanently lost.
+- `approve` clears on transfer — the approved address resets when the token moves.
+- `ownerOf` MUST revert for nonexistent tokens (never return `address(0)`).
 
 ### ERC-1155 — Multi-Token
 
 Single contract managing multiple token types (fungible and non-fungible) identified by `id`.
 
 ```solidity
-interface IERC1155 {
+interface IERC1155 is IERC165 {
     function balanceOf(address account, uint256 id) external view returns (uint256);
     function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
         external view returns (uint256[] memory);
@@ -107,13 +205,13 @@ interface IERC1155 {
 ```
 
 **Key rules:**
-- No `transferFrom` — ALL transfers are safe transfers that call `onERC1155Received` or `onERC1155BatchReceived`.
+- ALL transfers are safe — `onERC1155Received` / `onERC1155BatchReceived` is always called.
 - No per-token approval — only `setApprovalForAll` (operator model).
-- Batch operations reduce gas for multi-token transfers.
+- Batch operations save gas on multi-token transfers.
 
 ### ERC-4626 — Tokenized Vault
 
-Standard interface for yield-bearing vaults. The vault is itself an ERC-20 representing shares.
+Standard for yield-bearing vaults. The vault itself is an ERC-20 representing shares.
 
 ```solidity
 interface IERC4626 is IERC20 {
@@ -121,18 +219,18 @@ interface IERC4626 is IERC20 {
     function totalAssets() external view returns (uint256);
     function convertToShares(uint256 assets) external view returns (uint256);
     function convertToAssets(uint256 shares) external view returns (uint256);
-    function maxDeposit(address receiver) external view returns (uint256);
-    function previewDeposit(uint256 assets) external view returns (uint256);
     function deposit(uint256 assets, address receiver) external returns (uint256 shares);
-    function maxMint(address receiver) external view returns (uint256);
-    function previewMint(uint256 shares) external view returns (uint256);
     function mint(uint256 shares, address receiver) external returns (uint256 assets);
-    function maxWithdraw(address owner) external view returns (uint256);
-    function previewWithdraw(uint256 assets) external view returns (uint256);
     function withdraw(uint256 assets, address receiver, address owner) external returns (uint256 shares);
-    function maxRedeem(address owner) external view returns (uint256);
-    function previewRedeem(uint256 shares) external view returns (uint256);
     function redeem(uint256 shares, address receiver, address owner) external returns (uint256 assets);
+    function maxDeposit(address receiver) external view returns (uint256);
+    function maxMint(address receiver) external view returns (uint256);
+    function maxWithdraw(address owner) external view returns (uint256);
+    function maxRedeem(address owner) external view returns (uint256);
+    function previewDeposit(uint256 assets) external view returns (uint256);
+    function previewMint(uint256 shares) external view returns (uint256);
+    function previewWithdraw(uint256 assets) external view returns (uint256);
+    function previewRedeem(uint256 shares) external view returns (uint256);
 
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
     event Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares);
@@ -141,45 +239,28 @@ interface IERC4626 is IERC20 {
 
 **Key rules:**
 - `deposit`/`mint` are asset-denominated vs share-denominated entry. `withdraw`/`redeem` are asset-denominated vs share-denominated exit.
-- `preview*` functions MUST return the exact value that would be used in the corresponding action (not an estimate).
-- Rounding: `convertToShares` rounds DOWN, `convertToAssets` rounds DOWN. This protects the vault from share manipulation. `previewMint` and `previewWithdraw` round UP (caller pays more).
-- First-depositor attack: attacker deposits 1 wei, donates tokens to inflate share price, subsequent depositors get 0 shares. Mitigate with virtual shares/assets offset or minimum initial deposit.
+- `preview*` functions MUST return exact values (not estimates).
+- Rounding: favor the vault. `convertToShares` rounds DOWN, `previewMint`/`previewWithdraw` round UP.
+- First-depositor attack: attacker deposits 1 wei, donates tokens to inflate share price. Mitigate with virtual shares/assets offset or minimum deposit.
 
-## Signature Standards
-
-### EIP-191 — Personal Sign
-
-Prefixed message signing to prevent raw transaction signing. The `personal_sign` RPC method.
-
-```
-0x19 <1 byte version> <version specific data> <data to sign>
-```
-
-**Version `0x45` (E)** — `personal_sign`:
-```
-"\x19Ethereum Signed Message:\n" + len(message) + message
-```
+### ERC-2981 — NFT Royalties
 
 ```solidity
-// Recovering a personal_sign signature
-bytes32 messageHash = keccak256(abi.encodePacked(
-    "\x19Ethereum Signed Message:\n32",
-    dataHash
-));
-address signer = ECDSA.recover(messageHash, signature);
+interface IERC2981 is IERC165 {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
+        external view returns (address receiver, uint256 royaltyAmount);
+}
 ```
 
-**Key rules:**
-- The prefix prevents users from being tricked into signing valid Ethereum transactions.
-- `len(message)` is the decimal string length of the message in bytes, NOT the hex length.
-- For fixed-length data (bytes32), the length is always "32".
+Returns royalty recipient and amount for a given sale price. Enforcement is voluntary — marketplaces query this but the standard cannot force payment.
 
-### EIP-712 — Typed Structured Data
+## Signature & Auth Standards
 
-Structured, human-readable signing. Users see what they sign in their wallet.
+### EIP-712 — Typed Structured Data Signing
+
+Structured, human-readable signing. Users see the data they sign in their wallet.
 
 ```solidity
-// Domain separator — MUST include chainId and verifyingContract
 bytes32 DOMAIN_SEPARATOR = keccak256(abi.encode(
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
     keccak256(bytes("MyProtocol")),
@@ -188,12 +269,10 @@ bytes32 DOMAIN_SEPARATOR = keccak256(abi.encode(
     address(this)
 ));
 
-// Type hash for the struct being signed
 bytes32 constant PERMIT_TYPEHASH = keccak256(
     "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
 );
 
-// Final hash to sign
 bytes32 digest = keccak256(abi.encodePacked(
     "\x19\x01",
     DOMAIN_SEPARATOR,
@@ -201,52 +280,43 @@ bytes32 digest = keccak256(abi.encodePacked(
 ));
 ```
 
-**Key rules:**
-- Domain separator MUST be recomputed if `block.chainid` changes (fork protection). Cache it but verify against current chain ID.
-- Nested structs: type string must include referenced types in alphabetical order after the primary type.
-- Arrays in typed data: `keccak256(abi.encodePacked(array))` for fixed-size element arrays, element-wise encoding for struct arrays.
-- `bytes` and `string` fields are hashed with `keccak256` before encoding.
-
-### ERC-1271 — Contract Signature Verification
-
-Allows smart contracts (multisigs, smart accounts) to validate signatures.
-
-```solidity
-interface IERC1271 {
-    // MUST return 0x1626ba7e if signature is valid
-    function isValidSignature(bytes32 hash, bytes memory signature)
-        external view returns (bytes4 magicValue);
-}
-
-bytes4 constant ERC1271_MAGIC_VALUE = 0x1626ba7e;
-```
-
-**Verification pattern (supporting both EOA and contract signers):**
-
-```solidity
-function _isValidSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-    if (signer.code.length > 0) {
-        // Contract signer — delegate to ERC-1271
-        try IERC1271(signer).isValidSignature(hash, signature) returns (bytes4 magicValue) {
-            return magicValue == 0x1626ba7e;
-        } catch {
-            return false;
-        }
-    } else {
-        // EOA signer — ecrecover
-        return ECDSA.recover(hash, signature) == signer;
-    }
-}
+```typescript
+const signature = await walletClient.signTypedData({
+  domain: {
+    name: 'MyProtocol',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xContractAddress...',
+  },
+  types: {
+    Permit: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ],
+  },
+  primaryType: 'Permit',
+  message: {
+    owner: '0xOwner...',
+    spender: '0xSpender...',
+    value: 1000000n,
+    nonce: 0n,
+    deadline: BigInt(Math.floor(Date.now() / 1000) + 3600),
+  },
+});
 ```
 
 **Key rules:**
-- Always check `signer.code.length` to determine EOA vs contract before choosing verification path.
-- The `hash` parameter is the EIP-712 digest, NOT the raw message.
-- Wrap in try/catch — malicious contracts can revert, consume gas, or return unexpected values.
+- Domain separator MUST be recomputed if `block.chainid` changes (fork protection).
+- Nested structs: referenced types appended alphabetically after the primary type.
+- `bytes` and `string` fields are `keccak256`-ed before encoding.
+- Do NOT list `EIP712Domain` in the `types` object — viem derives it from the `domain` field.
 
 ### ERC-2612 — Permit (Gasless Approval)
 
-EIP-712 signed approvals for ERC-20 tokens. Users approve via signature instead of an on-chain transaction.
+EIP-712 signed approvals for ERC-20 tokens. Eliminates the separate `approve` transaction.
 
 ```solidity
 interface IERC20Permit {
@@ -263,234 +333,170 @@ interface IERC20Permit {
 - `deadline` is a Unix timestamp. Always check `block.timestamp <= deadline`.
 - Nonces are sequential per-owner. Cannot skip or reorder.
 - Not all ERC-20 tokens support permit. DAI uses a non-standard permit with `allowed` (bool) instead of `value` (uint256).
-- Permit signatures can be front-run — the approval still takes effect, but the `permit` call reverts if already used. Handle this gracefully (check allowance before calling permit).
+- Permit signatures can be front-run — check allowance before calling permit.
+
+### EIP-4361 — Sign-In With Ethereum (SIWE)
+
+Standard message format for using an Ethereum address to authenticate with off-chain services.
+
+```
+example.com wants you to sign in with your Ethereum account:
+0xAddress...
+
+I accept the Terms of Service: https://example.com/tos
+
+URI: https://example.com
+Version: 1
+Chain ID: 1
+Nonce: abc123
+Issued At: 2026-03-04T12:00:00.000Z
+```
+
+Used by dApps for wallet-based authentication. The message is human-readable, domain-bound (prevents phishing), and includes a server-issued nonce for replay protection.
+
+### ERC-1271 — Contract Signature Verification
+
+Allows smart contracts (multisigs, smart accounts) to validate signatures.
+
+```solidity
+interface IERC1271 {
+    function isValidSignature(bytes32 hash, bytes memory signature)
+        external view returns (bytes4 magicValue);
+}
+// MUST return 0x1626ba7e if valid
+```
+
+**Dual verification pattern (EOA + contract):**
+
+```solidity
+function _isValidSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    if (signer.code.length > 0) {
+        try IERC1271(signer).isValidSignature(hash, signature) returns (bytes4 magicValue) {
+            return magicValue == 0x1626ba7e;
+        } catch {
+            return false;
+        }
+    } else {
+        return ECDSA.recover(hash, signature) == signer;
+    }
+}
+```
+
+## Gas & Transaction Standards
+
+### EIP-1559 — Fee Market
+
+Base fee + priority fee model. The base fee is burned.
+
+| Field | Set by | Description |
+|-------|--------|-------------|
+| `baseFeePerGas` | Protocol | Adjusts per block based on utilization. Burned. |
+| `maxPriorityFeePerGas` | User | Tip to the validator. |
+| `maxFeePerGas` | User | Maximum total fee per gas unit. |
+
+```
+effectiveGasPrice = min(baseFeePerGas + maxPriorityFeePerGas, maxFeePerGas)
+```
+
+Base fee increases up to 12.5% per block when utilization exceeds 50% target (15M gas of 30M limit).
+
+### EIP-4844 — Blob Transactions (Proto-Danksharding)
+
+Type 3 transactions carrying blobs for L2 data availability.
+
+- Blobs are ~128 KB each, target 6 per block (post-Pectra), max 9.
+- Blob data is NOT accessible from the EVM — only the versioned hash.
+- Blobs are pruned after ~18 days.
+- Separate fee market with independently adjusting `blobBaseFee`.
+- Used by Arbitrum, Optimism, Base, and Scroll for data posting.
+
+### EIP-2930 — Access Lists
+
+Pre-declare which addresses and storage keys will be accessed.
+
+```typescript
+const accessList = await publicClient.createAccessList({
+  account: '0xSender...',
+  to: '0xContract...',
+  data: encodedCalldata,
+});
+```
+
+Pre-warming costs 2,400 gas per slot (vs 2,600 cold access). Useful for cross-contract calls accessing known storage.
 
 ## Account Abstraction
 
 ### ERC-4337 — Account Abstraction via Entry Point
 
-Decouples transaction validation from EOAs. Smart contract wallets validate their own transactions.
+Smart contract wallets with `UserOperation` objects processed by bundlers.
 
 **Core flow:**
 ```
 User creates UserOperation
-  → Bundler collects UserOperations into a bundle
-    → Bundler calls EntryPoint.handleOps(userOps, beneficiary)
-      → EntryPoint calls account.validateUserOp(userOp, userOpHash, missingAccountFunds)
-        → If paymaster: EntryPoint calls paymaster.validatePaymasterUserOp(...)
-          → EntryPoint executes the operation via account
+  -> Bundler collects and simulates
+    -> Bundler calls EntryPoint.handleOps(userOps, beneficiary)
+      -> EntryPoint calls account.validateUserOp(...)
+        -> If paymaster: validates sponsorship
+          -> EntryPoint executes the operation
 ```
 
-**UserOperation struct (v0.7):**
+**PackedUserOperation (v0.7):**
 
 ```solidity
 struct PackedUserOperation {
     address sender;
-    uint256 nonce;
-    bytes initCode;           // factory address + calldata (for first-time account deployment)
-    bytes callData;           // the actual operation to execute
-    bytes32 accountGasLimits; // packed: verificationGasLimit (16 bytes) + callGasLimit (16 bytes)
+    uint256 nonce;               // 192-bit key + 64-bit sequence for parallel channels
+    bytes initCode;              // factory address + calldata (first-time only)
+    bytes callData;
+    bytes32 accountGasLimits;    // verificationGasLimit (16 bytes) + callGasLimit (16 bytes)
     uint256 preVerificationGas;
-    bytes32 gasFees;          // packed: maxPriorityFeePerGas (16 bytes) + maxFeePerGas (16 bytes)
-    bytes paymasterAndData;   // paymaster address + verification gas + postOp gas + custom data
+    bytes32 gasFees;             // maxPriorityFeePerGas (16 bytes) + maxFeePerGas (16 bytes)
+    bytes paymasterAndData;      // paymaster address + gas limits + custom data
     bytes signature;
 }
 ```
 
-**EntryPoint address (v0.7):** `0x0000000071727De22E5E9d8BAf0edAc6f37da032`
+**EntryPoint v0.7:** `0x0000000071727De22E5E9d8BAf0edAc6f37da032`
 
 **Key rules:**
-- `validateUserOp` MUST return `SIG_VALIDATION_FAILED` (1) on invalid signature, NOT revert. Reverting wastes bundler gas.
-- `nonce` uses a key-space scheme: upper 192 bits = key, lower 64 bits = sequence. Allows parallel nonce channels.
-- `initCode` is only used for first UserOp (account deployment). Empty on subsequent operations.
-- Bundlers simulate `validateUserOp` off-chain before inclusion. Banned opcodes during validation: `BALANCE`, `GASPRICE`, `TIMESTAMP`, `BLOCKHASH`, `CREATE`, etc.
-- Paymasters can sponsor gas (gasless UX) or accept ERC-20 payment.
+- `validateUserOp` MUST return `SIG_VALIDATION_FAILED` (1) on bad signatures, NOT revert.
+- Banned opcodes during validation: `GASPRICE`, `TIMESTAMP`, `BLOCKHASH`, `CREATE`, etc.
+- Paymasters pre-deposit ETH to EntryPoint and can sponsor gas or accept ERC-20 payment.
 
-### ERC-7579 — Modular Smart Accounts
+### EIP-7702 — EOA Delegation
 
-Standard interface for modular account components. Accounts install/uninstall modules for validators, executors, hooks, and fallback handlers.
+EOAs temporarily or persistently delegate execution to smart contract code. Type `0x04` transactions include an `authorizationList`.
 
-**Module types:**
-| Type ID | Role | Called by |
-|---------|------|-----------|
-| 1 | Validator | Account (during validateUserOp) |
-| 2 | Executor | External trigger (automation) |
-| 3 | Fallback handler | Account (delegatecall on unknown function) |
-| 4 | Hook | Account (before/after execution) |
-
-```solidity
-interface IERC7579Account {
-    function execute(bytes32 mode, bytes calldata executionCalldata) external;
-    function installModule(uint256 moduleTypeId, address module, bytes calldata initData) external;
-    function uninstallModule(uint256 moduleTypeId, address module, bytes calldata deInitData) external;
-    function isModuleInstalled(uint256 moduleTypeId, address module, bytes calldata additionalContext)
-        external view returns (bool);
-    function supportsExecutionMode(bytes32 mode) external view returns (bool);
-    function supportsModule(uint256 moduleTypeId) external view returns (bool);
-}
+```
+authorization_tuple = (chain_id, address, nonce, y_parity, r, s)
 ```
 
-**Key rules:**
-- Execution modes encode call type (single, batch, delegatecall) and exec type (default, try) in a `bytes32`.
-- Modules MUST be stateless with respect to the account — store per-account state via mappings keyed by `msg.sender`.
-- `installModule` and `uninstallModule` should be access-controlled (only the account itself or authorized validators).
+When processed, the EOA's code is set to `0xef0100 || address`. Calls execute the delegated contract's code in the EOA's context (like delegatecall).
 
-## Chain & Gas
+```typescript
+import { walletClient } from './config';
 
-### EIP-1559 — Fee Market
+const authorization = await walletClient.signAuthorization({
+  contractAddress: '0xBatchExecutor...',
+});
 
-Replaced the first-price gas auction with a base fee + priority fee model.
-
-**Transaction fields:**
-- `maxFeePerGas` — Maximum total fee per gas unit the sender will pay.
-- `maxPriorityFeePerGas` — Tip to the validator (above base fee).
-- `baseFeePerGas` — Protocol-determined, burned. Not set by users.
-
-**Base fee adjustment:**
-- Target: 50% gas utilization per block (15M gas of 30M limit).
-- Block >50% full → base fee increases (up to 12.5% per block).
-- Block <50% full → base fee decreases (up to 12.5% per block).
-- Base fee is entirely burned (EIP-1559 burn mechanism).
-
-**Effective gas price:**
-```
-effectiveGasPrice = min(baseFeePerGas + maxPriorityFeePerGas, maxFeePerGas)
+const hash = await walletClient.writeContract({
+  address: walletClient.account.address,
+  abi: batchExecutorAbi,
+  functionName: 'executeBatch',
+  args: [[
+    { target: '0xTokenA...', value: 0n, data: approveCalldata },
+    { target: '0xRouter...', value: 0n, data: swapCalldata },
+  ]],
+  authorizationList: [authorization],
+});
 ```
 
-**Refund:** `(maxFeePerGas - effectiveGasPrice) * gasUsed` is refunded to sender.
+**EIP-7702 + ERC-4337**: Complementary. Bundlers accept `eip7702Auth` on UserOperations, letting EOAs participate in AA without migrating addresses.
 
-### EIP-4844 — Blob Transactions (Proto-Danksharding)
+### ERC-8004 — Agent Identity Registry
 
-Type 3 transactions carrying binary large objects (blobs) for L2 data availability.
-
-**Key properties:**
-- Blobs are ~128 KB each, max 6 per transaction (post-Pectra: higher targets).
-- Blob data is NOT accessible from the EVM — only the blob's versioned hash (commitment).
-- Blobs are pruned from consensus nodes after ~18 days.
-- Separate fee market: `blobBaseFee` adjusts independently from execution `baseFee`.
-
-**Transaction fields (added to EIP-1559):**
-- `maxFeePerBlobGas` — Maximum fee per blob gas unit.
-- `blobVersionedHashes` — List of versioned hashes (one per blob).
-
-**Precompile:** `BLOBHASH` opcode (0x49) returns versioned hash at given index. `Point evaluation precompile` at `0x0A` verifies KZG proofs.
-
-**Who uses this:** L2 rollups (Arbitrum, Optimism, Base, Scroll) post their data as blobs instead of calldata, reducing costs by ~10-100x.
-
-### EIP-2930 — Access Lists
-
-Type 1 transactions that declare which addresses and storage keys will be accessed.
-
-```json
-{
-  "accessList": [
-    {
-      "address": "0xContractAddress",
-      "storageKeys": [
-        "0x0000000000000000000000000000000000000000000000000000000000000001"
-      ]
-    }
-  ]
-}
-```
-
-**Key rules:**
-- Pre-warming accessed slots costs 2400 gas per slot (vs 2600 for cold access). Net savings only when you access each declared slot.
-- Useful for cross-contract calls where you know which storage slots will be read.
-- `eth_createAccessList` RPC method generates an optimal access list for a given transaction.
-
-## Proxy & Upgrade Patterns
-
-### EIP-1967 — Proxy Storage Slots
-
-Standardized storage slots for proxy contracts to avoid collisions with implementation storage.
-
-```solidity
-// Implementation slot: bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1)
-bytes32 constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
-
-// Admin slot: bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1)
-bytes32 constant ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
-
-// Beacon slot: bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1)
-bytes32 constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
-```
-
-**Key rules:**
-- The `-1` offset prevents the slot from being a known hash preimage, avoiding potential collisions with Solidity mappings.
-- Read implementation address: `sload(IMPLEMENTATION_SLOT)`.
-- Block explorers and tools rely on these standard slots for proxy detection.
-
-### EIP-1822 — UUPS (Universal Upgradeable Proxy Standard)
-
-Upgrade logic lives in the implementation, not the proxy. The proxy is minimal.
-
-```solidity
-// Implementation contains upgrade logic
-function upgradeTo(address newImplementation) external onlyOwner {
-    require(newImplementation.code.length > 0, "Not a contract");
-    // ERC-1822: implementation stores its own address for verification
-    require(
-        IERC1822(newImplementation).proxiableUUID() == IMPLEMENTATION_SLOT,
-        "UUID mismatch"
-    );
-    StorageSlot.getAddressSlot(IMPLEMENTATION_SLOT).value = newImplementation;
-}
-
-function proxiableUUID() external pure returns (bytes32) {
-    return IMPLEMENTATION_SLOT;
-}
-```
-
-**UUPS vs Transparent Proxy:**
-| | UUPS (EIP-1822) | Transparent (EIP-1967) |
-|---|---|---|
-| Upgrade logic location | Implementation | Proxy |
-| Gas per call | Lower (no admin check) | Higher (checks if caller is admin) |
-| Risk | Bricked if implementation lacks `upgradeTo` | Cannot brick upgrade path |
-| Deploy cost | Lower (minimal proxy) | Higher (proxy has upgrade logic) |
-
-**Key rules:**
-- UUPS implementations MUST include upgrade logic. If you deploy an implementation without `upgradeTo`, the proxy is permanently locked.
-- Always use `_disableInitializers()` in implementation constructors to prevent initialization of the implementation itself.
-- OpenZeppelin's `UUPSUpgradeable` provides the standard implementation.
-
-### EIP-7201 — Namespaced Storage Layout
-
-Deterministic storage locations for upgradeable contracts, preventing slot collisions across inheritance.
-
-```solidity
-// Formula: keccak256(abi.encode(uint256(keccak256("myprotocol.storage.MyStruct")) - 1)) & ~bytes32(uint256(0xff))
-// The -1 and masking prevent hash preimage attacks and align to 256-byte boundaries
-
-/// @custom:storage-location erc7201:myprotocol.storage.Counter
-struct CounterStorage {
-    uint256 count;
-    mapping(address => uint256) perUser;
-}
-
-function _getCounterStorage() private pure returns (CounterStorage storage $) {
-    // keccak256(abi.encode(uint256(keccak256("myprotocol.storage.Counter")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 COUNTER_STORAGE_LOCATION = 0x...;
-    assembly {
-        $.slot := COUNTER_STORAGE_LOCATION
-    }
-}
-```
-
-**Key rules:**
-- Each struct gets its own deterministic namespace. No inheritance slot conflicts.
-- The `@custom:storage-location` NatSpec annotation lets tools (OpenZeppelin Upgrades) verify layout.
-- Replaces the fragile "append-only" storage pattern used by older upgradeable contracts.
-- OpenZeppelin v5+ uses EIP-7201 by default for all upgradeable contracts.
-
-## Agent Identity & Reputation (ERC-8004)
-
-ERC-8004 defines onchain identity for AI agents — three registries for agent discovery, reputation, and validation.
-
-### Three Registries
-
-**Identity Registry**: Agents register their name, supported skills, service endpoints, and metadata. Think DNS for AI agents.
+Onchain identity for AI agents — three registries for discovery, reputation, and validation.
 
 ```solidity
 interface IAgentIdentityRegistry {
@@ -503,126 +509,146 @@ interface IAgentIdentityRegistry {
 
     function registerAgent(AgentIdentity calldata identity) external returns (uint256 agentId);
     function getAgent(uint256 agentId) external view returns (AgentIdentity memory);
-    function updateAgent(uint256 agentId, AgentIdentity calldata identity) external;
     function resolveByName(string calldata name) external view returns (uint256 agentId);
 
     event AgentRegistered(uint256 indexed agentId, address indexed owner, string name);
 }
 ```
 
-**Reputation Registry**: Immutable feedback after agent interactions. Cannot be modified or deleted — only appended. Score aggregation is left to consumers.
+Reputation registry provides immutable feedback (append-only, no edits). Validation registry enables third-party verification of agent capabilities. Integrates with x402 for payment authentication.
+
+## Proxy & Upgrade Patterns
+
+### EIP-1967 — Proxy Storage Slots
 
 ```solidity
-interface IAgentReputationRegistry {
-    function submitFeedback(uint256 agentId, uint8 score, bytes calldata details) external;
-    function getFeedbackCount(uint256 agentId) external view returns (uint256);
+// Implementation: bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1)
+bytes32 constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
-    event FeedbackSubmitted(uint256 indexed agentId, address indexed reviewer, uint8 score);
+// Admin: bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1)
+bytes32 constant ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
+
+// Beacon: bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1)
+bytes32 constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
+```
+
+### EIP-1822 — UUPS Proxy
+
+Upgrade logic in the implementation, not the proxy. Smaller proxy, cheaper deploys. **Risk**: if you deploy an implementation without `upgradeTo`, the proxy is permanently bricked.
+
+### EIP-7201 — Namespaced Storage
+
+Deterministic storage locations for upgradeable contracts. Prevents slot collisions across inheritance. OpenZeppelin v5+ uses this by default.
+
+```solidity
+/// @custom:storage-location erc7201:myprotocol.storage.Counter
+struct CounterStorage {
+    uint256 count;
+    mapping(address => uint256) perUser;
 }
 ```
 
-**Validation Registry**: Independent third-party verification of agent capabilities. Validators stake reputation on their assessments.
+## Interface Detection
+
+### ERC-165 — Standard Interface Detection
 
 ```solidity
-interface IAgentValidationRegistry {
-    function validateAgent(uint256 agentId, bytes calldata proof) external;
-    function isValidated(uint256 agentId, address validator) external view returns (bool);
-
-    event AgentValidated(uint256 indexed agentId, address indexed validator);
-}
+function supportsInterface(bytes4 interfaceId) external view returns (bool);
 ```
 
-**Integration with x402**: Agents registered via ERC-8004 can use their identity for x402 payment authentication — the agent's onchain identity serves as both discovery mechanism and payment credential. See the `x402` skill for payment flow details.
+**Common interface IDs:**
 
-## EOA Delegation (EIP-7702)
+| Interface | ID |
+|-----------|-----|
+| IERC165 | `0x01ffc9a7` |
+| IERC721 | `0x80ac58cd` |
+| IERC721Metadata | `0x5b5e139f` |
+| IERC1155 | `0xd9b67a26` |
+| IERC2981 | `0x2a55205a` |
 
-EIP-7702 (Pectra, May 2025) lets EOAs temporarily or persistently delegate their execution to smart contract code. This bridges the gap between EOAs and smart contract accounts.
+ERC-20 predates ERC-165 — do not rely on `supportsInterface` to detect ERC-20 tokens.
 
-### Transaction Format
+### EIP-6963 — Multi-Wallet Discovery
 
-Type `0x04` transactions include an `authorizationList` — an array of signed authorization tuples:
-
-```
-authorization_tuple = (chain_id, address, nonce, y_parity, r, s)
-```
-
-When processed, the EOA's code is set to a delegation designator: `0xef0100 || address`. Any calls to the EOA now execute the delegated contract's code, with the EOA as `msg.sender` and `address(this)`.
-
-### Key Mechanics
-
-| Property | Behavior |
-|----------|----------|
-| Delegation scope | Per-transaction (reverts after) or persistent (until revoked) |
-| Code execution | Delegated contract runs in EOA's context (like delegatecall) |
-| Storage | Uses EOA's storage slots |
-| msg.sender | Callers see the EOA address |
-| Revocation | Set delegation to `address(0)` |
-| Nonce | Authorization nonce is separate from tx nonce |
-
-### viem Integration
+Replaces the `window.ethereum` single-provider model. Wallets announce themselves via DOM events, eliminating the provider collision problem.
 
 ```typescript
-import { walletClient } from './config';
-import { parseEther } from 'viem';
-import { signAuthorization } from 'viem/experimental';
-
-// Sign authorization to delegate to a batch executor
-const authorization = await walletClient.signAuthorization({
-  contractAddress: '0xBatchExecutor...', // contract with batch logic
+window.addEventListener('eip6963:announceProvider', (event) => {
+  const { info, provider } = event.detail;
+  // info.name, info.icon, info.rdns, info.uuid
 });
-
-// Execute batch via delegated code
-const hash = await walletClient.writeContract({
-  address: walletClient.account.address, // call yourself (delegated)
-  abi: batchExecutorAbi,
-  functionName: 'executeBatch',
-  args: [[
-    { target: '0xTokenA...', value: 0n, data: approveCalldata },
-    { target: '0xRouter...', value: 0n, data: swapCalldata },
-  ]],
-  authorizationList: [authorization],
-});
+window.dispatchEvent(new Event('eip6963:requestProvider'));
 ```
 
-### Interaction with ERC-4337
+## Chain & Network
 
-EIP-7702 and ERC-4337 are complementary:
-- **EIP-7702 alone**: EOA gets smart account features (batching, sponsorship) but no persistent account abstraction infrastructure
-- **ERC-4337 alone**: Full AA but requires deploying a new smart account contract
-- **Combined**: Bundlers accept `eip7702Auth` on UserOperations — EOAs can participate in the ERC-4337 ecosystem without migrating to a new address
+### EIP-155 — Replay Protection
 
-See the `account-abstraction` skill for full implementation patterns.
+Chain ID in transaction signatures prevents cross-chain replay. Common IDs:
+
+| Chain | ID | Chain | ID |
+|-------|----|-------|----|
+| Ethereum Mainnet | 1 | Polygon | 137 |
+| Sepolia | 11155111 | Arbitrum One | 42161 |
+| Base | 8453 | Optimism | 10 |
+
+### EIP-1193 — Provider API
+
+Standard JavaScript API for Ethereum providers (`window.ethereum`).
+
+```typescript
+interface EIP1193Provider {
+  request(args: { method: string; params?: unknown[] }): Promise<unknown>;
+  on(event: string, listener: (...args: unknown[]) => void): void;
+  removeListener(event: string, listener: (...args: unknown[]) => void): void;
+}
+```
 
 ## Quick Lookup Table
 
-| Number | Name | Type | Status | Summary |
-|--------|------|------|--------|---------|
-| ERC-20 | Token Standard | ERC | Final | Fungible token interface (transfer, approve, allowance) |
-| ERC-165 | Interface Detection | ERC | Final | `supportsInterface(bytes4)` — standard introspection |
-| ERC-173 | Contract Ownership | ERC | Final | `owner()` + `transferOwnership()` standard |
-| EIP-191 | Signed Data Standard | EIP | Final | Prefixed signing to prevent transaction-signing tricks |
-| ERC-721 | Non-Fungible Token | ERC | Final | Unique token with `ownerOf`, `safeTransferFrom` |
-| ERC-1155 | Multi-Token | ERC | Final | Multiple token types in one contract |
-| ERC-1271 | Contract Signatures | ERC | Final | `isValidSignature` for smart contract wallets |
-| EIP-712 | Typed Data Signing | EIP | Final | Structured, human-readable signature requests |
-| EIP-1014 | CREATE2 | EIP | Final | Deterministic contract addresses from salt + initcode |
-| EIP-1559 | Fee Market | EIP | Final | Base fee + priority fee, base fee burned |
-| EIP-1822 | UUPS Proxy | EIP | Final | Upgrade logic in implementation, not proxy |
-| EIP-1967 | Proxy Storage Slots | EIP | Final | Standard slots for impl/admin/beacon addresses |
-| EIP-2098 | Compact Signatures | EIP | Final | 64-byte signatures (r + yParityAndS) |
-| ERC-2612 | Permit | ERC | Final | Gasless ERC-20 approvals via EIP-712 signature |
-| EIP-2930 | Access Lists | EIP | Final | Declare accessed addresses/slots for gas savings |
-| ERC-3009 | Transfer With Authorization | ERC | Final | Gasless token transfers via EIP-712 signatures |
-| ERC-4337 | Account Abstraction | ERC | Draft | Smart accounts via EntryPoint + Bundler |
-| ERC-4626 | Tokenized Vault | ERC | Final | Standardized yield vault (deposit/withdraw/redeem) |
-| EIP-4844 | Blob Transactions | EIP | Final | L2 data availability via blobs (~128 KB, pruned) |
-| ERC-6900 | Modular Accounts v1 | ERC | Draft | Plugin architecture for smart accounts |
-| EIP-7201 | Namespaced Storage | EIP | Final | Deterministic storage slots for upgradeable contracts |
-| ERC-7579 | Modular Accounts v2 | ERC | Draft | Minimal modular smart account interface |
-| EIP-7594 | PeerDAS | EIP | Final | Peer Data Availability Sampling for blob scaling |
-| EIP-7702 | Set EOA Account Code | EIP | Final | EOA delegation to smart contract code |
-| EIP-7951 | secp256r1 Precompile | EIP | Final | Native P-256/passkey signature verification |
-| ERC-8004 | Agent Identity Registry | ERC | Draft | Onchain identity, reputation, and validation for AI agents |
+| Number | Name | Type | Status |
+|--------|------|------|--------|
+| ERC-20 | Token Standard | ERC | Final |
+| ERC-165 | Interface Detection | ERC | Final |
+| EIP-155 | Replay Protection (Chain ID) | EIP | Final |
+| EIP-191 | Signed Data Standard | EIP | Final |
+| ERC-721 | Non-Fungible Token | ERC | Final |
+| ERC-1155 | Multi-Token | ERC | Final |
+| ERC-1271 | Contract Signature Verification | ERC | Final |
+| EIP-712 | Typed Structured Data Signing | EIP | Final |
+| EIP-1014 | CREATE2 Deterministic Addresses | EIP | Final |
+| EIP-1193 | JavaScript Provider API | EIP | Final |
+| EIP-1559 | Fee Market (Base + Priority Fee) | EIP | Final |
+| EIP-1822 | UUPS Proxy | EIP | Final |
+| EIP-1967 | Proxy Storage Slots | EIP | Final |
+| EIP-2098 | Compact 64-byte Signatures | EIP | Final |
+| ERC-2612 | ERC-20 Permit (Gasless Approval) | ERC | Final |
+| EIP-2718 | Typed Transaction Envelope | EIP | Final |
+| EIP-2930 | Access Lists (Type 1 Tx) | EIP | Final |
+| ERC-2981 | NFT Royalty Standard | ERC | Final |
+| ERC-3009 | Transfer With Authorization | ERC | Final |
+| EIP-3156 | Flash Loan Standard | EIP | Final |
+| ERC-4337 | Account Abstraction (EntryPoint) | ERC | Final |
+| EIP-4361 | Sign-In With Ethereum | EIP | Final |
+| ERC-4626 | Tokenized Vault | ERC | Final |
+| EIP-4844 | Blob Transactions (Proto-Danksharding) | EIP | Final |
+| EIP-6093 | Custom Errors for Tokens | EIP | Final |
+| EIP-6963 | Multi-Wallet Discovery | EIP | Final |
+| EIP-7201 | Namespaced Storage Layout | EIP | Final |
+| ERC-7579 | Modular Smart Accounts | ERC | Draft |
+| EIP-7702 | EOA Delegation (Set Account Code) | EIP | Final |
+| EIP-7951 | secp256r1 Precompile (Passkeys) | EIP | Final |
+| ERC-8004 | Agent Identity Registry | ERC | Draft |
+
+Last verified: March 2026
+
+## Related Skills
+
+- **eth-concepts** — EVM internals, gas mechanics, storage layout, transaction types
+- **account-abstraction** — Full ERC-4337/EIP-7702/ERC-7579 implementation patterns
+- **solidity-security** — Security patterns, CEI, reentrancy guards, access control
+- **evm-nfts** — NFT minting, metadata, marketplace integration patterns
+- **x402** — Agent payment protocol (integrates with ERC-8004)
 
 ## References
 
@@ -631,21 +657,15 @@ See the `account-abstraction` skill for full implementation patterns.
 - [ERC-721](https://eips.ethereum.org/EIPS/eip-721) — Non-Fungible Token
 - [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155) — Multi-Token
 - [ERC-4626](https://eips.ethereum.org/EIPS/eip-4626) — Tokenized Vault
-- [EIP-191](https://eips.ethereum.org/EIPS/eip-191) — Signed Data Standard
+- [ERC-2981](https://eips.ethereum.org/EIPS/eip-2981) — NFT Royalty Standard
 - [EIP-712](https://eips.ethereum.org/EIPS/eip-712) — Typed Structured Data
-- [ERC-1271](https://eips.ethereum.org/EIPS/eip-1271) — Contract Signature Verification
 - [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612) — Permit Extension
 - [ERC-4337](https://eips.ethereum.org/EIPS/eip-4337) — Account Abstraction
-- [ERC-7579](https://eips.ethereum.org/EIPS/eip-7579) — Modular Smart Accounts
 - [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559) — Fee Market Change
 - [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) — Shard Blob Transactions
-- [EIP-1967](https://eips.ethereum.org/EIPS/eip-1967) — Proxy Storage Slots
-- [EIP-1822](https://eips.ethereum.org/EIPS/eip-1822) — UUPS
-- [EIP-7201](https://eips.ethereum.org/EIPS/eip-7201) — Namespaced Storage
 - [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) — Set EOA Account Code
-- [ERC-8004: Agent Identity Registry](https://eips.ethereum.org/EIPS/eip-8004) — Onchain agent identity standard
-- [ERC-3009: Transfer With Authorization](https://eips.ethereum.org/EIPS/eip-3009) — Gasless token transfers
-- [EIP-7702: Set EOA Account Code](https://eips.ethereum.org/EIPS/eip-7702) — EOA delegation
-- [EIP-7594: PeerDAS](https://eips.ethereum.org/EIPS/eip-7594) — Data availability sampling
-- [EIP-7951: secp256r1 Precompile](https://eips.ethereum.org/EIPS/eip-7951) — Passkey support
-- [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts) — Reference implementations
+- [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) — Agent Identity Registry
+- [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) — Multi-Wallet Discovery
+- [EIP-7951](https://eips.ethereum.org/EIPS/eip-7951) — secp256r1 Precompile
+- [OpenZeppelin Contracts v5](https://docs.openzeppelin.com/contracts/5.x/) — Reference implementations
+- [Viem Documentation](https://viem.sh/) — TypeScript Ethereum library
