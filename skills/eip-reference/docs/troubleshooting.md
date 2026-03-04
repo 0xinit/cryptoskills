@@ -6,7 +6,7 @@ Common issues when implementing Ethereum standards, with root causes and fixes.
 
 **Symptom:** Spender drains more than intended when allowance is updated from N to M.
 
-**Root cause:** Spender front-runs the `approve(M)` call, spending the existing allowance N, then spends the new allowance M, totaling N+M.
+**Root cause:** Spender front-runs the `approve(M)` call, spending existing allowance N, then spends the new allowance M (total: N+M).
 
 **Fix:**
 ```solidity
@@ -14,30 +14,29 @@ Common issues when implementing Ethereum standards, with root causes and fixes.
 token.approve(spender, 0);
 token.approve(spender, newAmount);
 
-// Option 2: Use increaseAllowance/decreaseAllowance (OpenZeppelin)
-token.increaseAllowance(spender, additionalAmount);
+// Option 2: Use SafeERC20 (OpenZeppelin v5)
+SafeERC20.forceApprove(token, spender, newAmount);
 
-// Option 3: Use ERC-2612 permit (gasless, single-use nonce)
+// Option 3: Use ERC-2612 permit (gasless, nonce-protected)
 token.permit(owner, spender, value, deadline, v, r, s);
 ```
 
 ## ERC-20: USDT Nonzero-to-Nonzero Approve Reverts
 
-**Symptom:** `approve` call reverts with no error message on USDT.
+**Symptom:** `approve` reverts silently on USDT.
 
-**Root cause:** USDT's implementation requires allowance to be 0 before setting a new nonzero value.
+**Root cause:** USDT requires allowance to be 0 before setting a new nonzero value.
 
-**Fix:** Always set allowance to 0 before approving a new amount. OpenZeppelin `SafeERC20.forceApprove` handles this automatically.
+**Fix:** Use `SafeERC20.forceApprove` which handles the zero-first pattern automatically.
 
 ## ERC-721: safeTransferFrom Reverts on Contract Recipient
 
-**Symptom:** `safeTransferFrom` reverts when sending to a contract address.
+**Symptom:** `safeTransferFrom` reverts when sending to a contract.
 
-**Root cause:** The receiving contract does not implement `IERC721Receiver` or returns the wrong selector from `onERC721Received`.
+**Root cause:** Receiving contract missing `IERC721Receiver` or returns wrong selector.
 
 **Fix:**
 ```solidity
-// Receiving contract must implement:
 function onERC721Received(
     address operator, address from, uint256 tokenId, bytes calldata data
 ) external returns (bytes4) {
@@ -45,17 +44,16 @@ function onERC721Received(
 }
 ```
 
-If the receiving contract intentionally should not accept NFTs, this is working as designed. If you must send to a contract that cannot be modified, use `transferFrom` instead — but the token may be permanently locked.
+If the receiving contract cannot be modified, use `transferFrom` instead — but the token may be permanently locked.
 
 ## EIP-712: Domain Separator Mismatch Across Chains
 
-**Symptom:** Signature verification fails after deploying the same contract on a different chain, or after a chain fork.
+**Symptom:** Signature verification fails after deploying on a different chain or after a fork.
 
-**Root cause:** The domain separator was computed at deploy time with the original `chainId`. On another chain, `block.chainid` differs and the digest changes.
+**Root cause:** Domain separator was computed at deploy time with the original `chainId`.
 
 **Fix:**
 ```solidity
-// Recompute domain separator if chainId changed (fork protection)
 function _domainSeparator() internal view returns (bytes32) {
     if (block.chainid == _cachedChainId) {
         return _cachedDomainSeparator;
@@ -64,119 +62,82 @@ function _domainSeparator() internal view returns (bytes32) {
 }
 ```
 
-OpenZeppelin's `EIP712` base contract does this automatically. If you are hand-rolling EIP-712, always check `block.chainid` before using a cached separator.
+OpenZeppelin's `EIP712` base contract handles this automatically.
 
-## EIP-712: Signature Valid on Mainnet but Fails on Testnet
+## EIP-712: Frontend chainId Mismatch
 
-**Symptom:** `signTypedData` works on mainnet but verification fails on Sepolia (or vice versa).
+**Symptom:** `signTypedData` works on mainnet but verification fails on testnet.
 
-**Root cause:** The `chainId` in the domain passed to `signTypedData` on the frontend does not match the chain the contract is deployed on.
-
-**Fix:** Ensure the frontend reads `chainId` from the connected wallet, not from a hardcoded value:
-
-```typescript
-import { getChainId } from "viem/actions";
-
-const chainId = await getChainId(publicClient);
-// Use this chainId in the domain object
-```
-
-## ERC-4337: UserOp Simulation Failure
-
-**Symptom:** Bundler rejects UserOperation with `AA** error` codes.
-
-**Common error codes:**
-| Code | Meaning | Fix |
-|------|---------|-----|
-| `AA10` | Sender already constructed | Remove `initCode` — account already deployed |
-| `AA13` | initCode failed or returned wrong address | Check factory `createAccount` uses CREATE2 with correct salt |
-| `AA21` | Insufficient stake/deposit | Fund account via `entryPoint.depositTo` |
-| `AA23` | Reverted during validation | `validateUserOp` is reverting instead of returning `SIG_VALIDATION_FAILED` |
-| `AA25` | Invalid nonce | Query current nonce with `entryPoint.getNonce(sender, key)` |
-| `AA31` | Paymaster deposit too low | Top up paymaster deposit on EntryPoint |
-| `AA33` | Paymaster validation reverted | Check `validatePaymasterUserOp` logic |
-| `AA34` | Paymaster validation out of gas | Increase `paymasterVerificationGasLimit` |
-| `AA40` | Over verificationGasLimit | Increase `verificationGasLimit` |
-| `AA41` | Over paymasterVerificationGasLimit | Increase paymaster gas limit in `paymasterAndData` |
-| `AA51` | Prefund below actualGasCost | Increase `preVerificationGas` or pre-fund account |
-
-## ERC-2612: Permit Signature Expired
-
-**Symptom:** `permit` call reverts with `"ERC2612: expired deadline"`.
-
-**Root cause:** The `deadline` timestamp in the signed permit is in the past by the time the transaction is mined.
+**Root cause:** Hardcoded `chainId` in the frontend domain object.
 
 **Fix:**
-- Set `deadline` far enough in the future to survive mempool delays. 30 minutes is common, 1 hour is safe.
-- For immediate use: `deadline = block.timestamp + 1800` (30 minutes).
-- Never set `deadline = block.timestamp` on the frontend — by the time the tx mines, it has already expired.
+```typescript
+const chainId = await publicClient.getChainId();
+// Use this dynamic chainId in the domain, not a hardcoded value
+```
 
 ## ERC-2612: Permit Nonce Mismatch
 
-**Symptom:** `permit` call reverts with `"ERC2612: invalid signature"` even though the signature looks correct.
+**Symptom:** `permit` reverts with "invalid signature" despite correct signing.
 
-**Root cause:** The nonce used when signing does not match the current on-chain nonce. This happens when:
-1. A previous permit was submitted but not yet mined (nonce is stale)
-2. The nonce was fetched from a stale RPC response
-3. Another transaction incremented the nonce between signing and submission
+**Root cause:** Nonce fetched before another transaction incremented it.
 
 **Fix:**
 ```typescript
-// Always fetch nonce immediately before signing
 const nonce = await publicClient.readContract({
   address: tokenAddress,
   abi: erc20PermitAbi,
-  functionName: "nonces",
+  functionName: 'nonces',
   args: [ownerAddress],
 });
-// Use this nonce in the signTypedData call
+// Sign immediately after fetching — do not cache
 ```
 
 ## ERC-2612: Permit Front-Running
 
-**Symptom:** `permit` call reverts even though the signature is valid.
+**Symptom:** `permit` reverts even though the signature is valid.
 
-**Root cause:** Someone else submitted the permit signature first (front-ran). The nonce was incremented, so the original `permit` call sees a used nonce.
+**Root cause:** Someone submitted the permit signature first, incrementing the nonce.
 
-**Fix:** Check allowance before calling `permit`. If allowance is already set, skip the permit call:
+**Fix:**
 ```solidity
 if (token.allowance(owner, spender) < amount) {
     token.permit(owner, spender, amount, deadline, v, r, s);
 }
 ```
 
-## ERC-165: Interface ID Calculation Errors
+## ERC-4337: UserOp Simulation Failure
 
-**Symptom:** `supportsInterface` returns `false` for an interface the contract implements.
+**Common error codes:**
 
-**Root cause:** The interface ID was calculated incorrectly. The ID is the XOR of all function selectors in the interface — NOT including inherited functions.
+| Code | Meaning | Fix |
+|------|---------|-----|
+| `AA10` | Sender already constructed | Remove `initCode` |
+| `AA21` | Insufficient deposit | Fund via `entryPoint.depositTo` |
+| `AA23` | Validation reverted | Return `SIG_VALIDATION_FAILED`, do not revert |
+| `AA25` | Invalid nonce | Query `entryPoint.getNonce(sender, key)` |
+| `AA31` | Paymaster deposit too low | Top up paymaster on EntryPoint |
+| `AA33` | Paymaster validation reverted | Check `validatePaymasterUserOp` logic |
 
-**Fix:**
-```solidity
-// Correct: XOR of selectors in IERC721 only (not IERC165 selectors)
-bytes4 constant IERC721_ID = 0x80ac58cd;
+## ERC-4626: First-Depositor Share Inflation
 
-// Verify in Foundry
-bytes4 id = type(IERC721).interfaceId;
-assertEq(id, 0x80ac58cd);
-```
+**Symptom:** Second depositor receives 0 shares despite depositing significant assets.
 
-Common mistake: including `supportsInterface` itself in the XOR. `supportsInterface` belongs to ERC-165 (`0x01ffc9a7`), not to the derived interface.
+**Root cause:** Attacker deposits 1 wei, donates tokens directly to vault, inflating share price beyond the second depositor's amount.
 
-## EIP-1967: Proxy Not Detected by Block Explorer
+**Fix:** Use OpenZeppelin's `ERC4626` which includes virtual shares/assets offset by default in v5.
 
-**Symptom:** Etherscan shows the proxy's own ABI (fallback, receive) instead of the implementation's ABI.
+## EIP-1967: Proxy Not Detected by Explorer
 
-**Root cause:** The implementation address is not stored in the standard EIP-1967 slot (`0x360894a...`), or the proxy does not emit the standard `Upgraded(address)` event.
+**Symptom:** Etherscan shows proxy ABI instead of implementation ABI.
 
-**Fix:** Ensure the proxy writes to the standard slot and emits the event:
+**Root cause:** Implementation not stored in standard EIP-1967 slot or missing `Upgraded` event.
+
+**Fix:** Ensure standard slot and event emission:
 ```solidity
 event Upgraded(address indexed implementation);
-
 bytes32 constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 ```
-
-After deployment, verify on Etherscan by clicking "Is this a proxy?" → "Verify" → "Save". The explorer reads the EIP-1967 slot to detect the implementation.
 
 ## References
 
@@ -184,5 +145,5 @@ After deployment, verify on Etherscan by clicking "Is this a proxy?" → "Verify
 - [EIP-712](https://eips.ethereum.org/EIPS/eip-712) — Typed Structured Data
 - [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612) — Permit Extension
 - [ERC-4337](https://eips.ethereum.org/EIPS/eip-4337) — Account Abstraction
-- [EIP-165](https://eips.ethereum.org/EIPS/eip-165) — Interface Detection
+- [ERC-4626](https://eips.ethereum.org/EIPS/eip-4626) — Tokenized Vault
 - [EIP-1967](https://eips.ethereum.org/EIPS/eip-1967) — Proxy Storage Slots
