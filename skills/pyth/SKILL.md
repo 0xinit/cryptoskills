@@ -1,10 +1,17 @@
 ---
 name: pyth
-creator: raunit-dev
-description: Complete guide for Pyth Network - decentralized oracle providing real-time price feeds for DeFi. Covers price feed integration, confidence intervals, EMA prices, on-chain CPI, off-chain fetching, and streaming updates for Solana applications.
+description: "Pyth Network oracle for Solana — decentralized real-time price feeds for DeFi. Covers Anchor CPI integration, confidence intervals, EMA prices, on-chain/off-chain fetching, and streaming updates. For EVM chains, see the pyth-evm skill."
+license: Apache-2.0
 metadata:
+  author: raunit-dev
+  version: "1.0"
   chain: solana
   category: Oracles
+tags:
+  - pyth
+  - oracle
+  - price-feeds
+  - solana
 ---
 
 # Pyth Network Development Guide
@@ -546,3 +553,25 @@ pyth/
 └── docs/
     └── troubleshooting.md            # Common issues and solutions
 ```
+
+## Pyth on EVM Chains
+
+This skill covers Pyth integration for **Solana** applications using Anchor CPI. For EVM chain integration (Ethereum, Arbitrum, Base, Optimism, Polygon, and 50+ other chains), see the **`pyth-evm`** skill.
+
+Key differences between Pyth Solana and Pyth EVM:
+
+| Aspect | Pyth Solana (this skill) | Pyth EVM (`pyth-evm` skill) |
+|--------|--------------------------|---------------------------|
+| Contract interface | Anchor CPI to Pyth program | Solidity `IPyth` interface |
+| Price update | Pull from Pyth accumulator account | Submit `bytes[]` via `updatePriceFeeds` |
+| Contract address | Single Pyth program on Solana | Varies per EVM chain |
+| Gas/compute | Compute units | ~120-150K gas per feed update |
+| SDK | `@pythnetwork/pyth-solana-receiver` | `@pythnetwork/hermes-client` v3.1.0 |
+
+Price feed IDs (bytes32) are the **same across all chains** — a BTC/USD feed ID works on both Solana and Ethereum.
+
+## Related Skills
+
+- **`pyth-evm`** — Pyth oracle integration for EVM chains (Solidity + TypeScript)
+- **`chainlink`** — Push oracle alternative on EVM chains
+- **`redstone`** — Another pull oracle for EVM chains

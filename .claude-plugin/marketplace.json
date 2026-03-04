@@ -166,10 +166,22 @@
       "category": "Dev Tools"
     },
     {
+      "name": "evm-nfts",
+      "source": "./skills/evm-nfts",
+      "description": "ERC-721 and ERC-1155 NFT development patterns for EVM chains. Covers minting, metadata, royalties, marketplace integration with Seaport, and security pitfalls. Uses OpenZeppelin v5.6.1.",
+      "category": "NFT & Tokens"
+    },
+    {
       "name": "evm-testing",
       "source": "./skills/evm-testing",
       "description": "Comprehensive testing patterns for EVM smart contracts. Covers unit tests, fuzz testing, invariant testing, fork testing, and gas optimization with Foundry and Hardhat. Focuses on patterns and techniques — not CLI usage or project setup.",
       "category": "Dev Tools"
+    },
+    {
+      "name": "farcaster",
+      "source": "./skills/farcaster",
+      "description": "Onchain social protocol with Neynar API, Frames v2 Mini Apps, and transaction frames. Covers Snapchain architecture, FID registry on OP Mainnet, and Warpcast integration.",
+      "category": "Infrastructure"
     },
     {
       "name": "foundry",
@@ -364,6 +376,12 @@
       "category": "L2 & Alt-L1"
     },
     {
+      "name": "privy",
+      "source": "./skills/privy",
+      "description": "Embedded wallet SDK for dApps with social login, email, and passkey auth. Covers React SDK, server-side JWT verification, wallet management, and smart wallet integration. Acquired by Stripe (2025).",
+      "category": "Frontend"
+    },
+    {
       "name": "pumpfun",
       "source": "./skills/pumpfun",
       "description": "Complete PumpFun Protocol guide for building token launches, bonding curves, and AMM integrations on Solana. Covers Pump Program (token creation, buy/sell on bonding curves), PumpSwap AMM (liquidity pools, swaps), fee structures, creator fees, and SDK integration.",
@@ -372,7 +390,13 @@
     {
       "name": "pyth",
       "source": "./skills/pyth",
-      "description": "Complete guide for Pyth Network - decentralized oracle providing real-time price feeds for DeFi. Covers price feed integration, confidence intervals, EMA prices, on-chain CPI, off-chain fetching, and streaming updates for Solana applications.",
+      "description": "Pyth Network oracle for Solana — decentralized real-time price feeds for DeFi. Covers Anchor CPI integration, confidence intervals, EMA prices, on-chain/off-chain fetching, and streaming updates. For EVM chains, see the pyth-evm skill.",
+      "category": "Oracles"
+    },
+    {
+      "name": "pyth-evm",
+      "source": "./skills/pyth-evm",
+      "description": "Pyth pull oracle integration for EVM chains. Covers price feed updates, Hermes API, confidence intervals, sponsored feeds, Express Relay for MEV-protected liquidations, and Solidity/TypeScript patterns.",
       "category": "Oracles"
     },
     {
