@@ -98,7 +98,7 @@ export default function Home() {
       <footer className="border-t border-[var(--border)] px-5 py-8 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-7xl items-center justify-between text-xs text-[var(--text-muted)]">
           <span style={{ fontFamily: "var(--font-mono)" }}>
-            cryptoskills.sh
+            cryptoskills.dev
           </span>
           <span className="flex items-center gap-3">
             Built by{" "}

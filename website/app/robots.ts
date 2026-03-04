@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://cryptoskills.sh/sitemap.xml",
+    sitemap: "https://cryptoskills.dev/sitemap.xml",
   };
 }

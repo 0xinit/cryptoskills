@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   description:
     "Open-source agent skills directory covering 96 protocols across Ethereum, Solana, L2s, DeFi, NFTs, and more. Production-ready code for AI coding agents.",
-  metadataBase: new URL("https://cryptoskills.sh"),
+  metadataBase: new URL("https://cryptoskills.dev"),
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllSkills } from "@/lib/registry";
 
-const BASE_URL = "https://cryptoskills.sh";
+const BASE_URL = "https://cryptoskills.dev";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const skills = getAllSkills();
