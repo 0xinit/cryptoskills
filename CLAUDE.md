@@ -13,7 +13,7 @@ skills/<protocol>/templates/  — Starter boilerplate (optional)
 template/SKILL.md             — Contributor template
 .claude-plugin/marketplace.json — Plugin marketplace registry
 scripts/                      — Build tooling
-website/                      — Next.js site (cryptoskills.sh)
+website/                      — Next.js site (cryptoskills.dev)
 ```
 
 ## Writing Skills
