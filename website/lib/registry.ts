@@ -28,7 +28,9 @@ let cachedRegistry: Registry | null = null;
 export function getRegistry(): Registry {
   if (cachedRegistry) return cachedRegistry;
 
-  const registryPath = path.resolve(process.cwd(), "../_registry.json");
+  const parentPath = path.resolve(process.cwd(), "../_registry.json");
+  const localPath = path.resolve(process.cwd(), "_registry.json");
+  const registryPath = fs.existsSync(parentPath) ? parentPath : localPath;
   if (!fs.existsSync(registryPath)) {
     throw new Error(
       "_registry.json not found. Run `npx tsx scripts/build-registry.ts` first."
