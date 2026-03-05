@@ -28,6 +28,12 @@ Thumbs.db
 # Generated
 _registry.json
 
+# Claude plugin install artifacts
+.agents/
+.factory/
+.claude/
+skills-lock.json
+
 # Plans
 docs/plans/
 
