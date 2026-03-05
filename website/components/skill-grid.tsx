@@ -15,27 +15,22 @@ export function SkillGrid({ skills, categories, chains }: SkillGridProps) {
   const [filtered, setFiltered] = useState<RegistrySkill[]>(skills);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeChain, setActiveChain] = useState<string | null>(null);
+  const [searchResults, setSearchResults] =
+    useState<RegistrySkill[]>(skills);
 
   const applyFilters = useCallback(
     (
-      searchResults: RegistrySkill[],
+      results: RegistrySkill[],
       category: string | null,
       chain: string | null
     ) => {
-      let result = searchResults;
-      if (category) {
-        result = result.filter((s) => s.category === category);
-      }
-      if (chain) {
-        result = result.filter((s) => s.chain === chain);
-      }
-      return result;
+      let out = results;
+      if (category) out = out.filter((s) => s.category === category);
+      if (chain) out = out.filter((s) => s.chain === chain);
+      return out;
     },
     []
   );
-
-  const [searchResults, setSearchResults] =
-    useState<RegistrySkill[]>(skills);
 
   const handleSearch = useCallback(
     (results: RegistrySkill[]) => {
@@ -65,82 +60,102 @@ export function SkillGrid({ skills, categories, chains }: SkillGridProps) {
     <div>
       <Search skills={skills} onResults={handleSearch} />
 
-      {/* Category filters */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          onClick={() => handleCategory(null)}
-          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-            !activeCategory
-              ? "border-indigo-500 bg-indigo-500/20 text-indigo-300"
-              : "border-zinc-700 text-zinc-400 hover:border-zinc-600"
-          }`}
-        >
-          All Categories
-        </button>
-        {categories.map((cat) => (
+      {/* Filters */}
+      <div className="mt-5 space-y-3">
+        {/* Categories */}
+        <div className="flex flex-wrap gap-1.5">
+          <span
+            className="mr-1 self-center text-[10px] uppercase tracking-widest text-[var(--text-muted)]"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            cat
+          </span>
           <button
-            key={cat}
-            onClick={() =>
-              handleCategory(activeCategory === cat ? null : cat)
-            }
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-              activeCategory === cat
-                ? "border-indigo-500 bg-indigo-500/20 text-indigo-300"
-                : "border-zinc-700 text-zinc-400 hover:border-zinc-600"
+            onClick={() => handleCategory(null)}
+            className={`filter-pill rounded-md px-2.5 py-1 text-[11px] ${
+              !activeCategory ? "filter-pill-active" : ""
             }`}
           >
-            {cat}
+            All
           </button>
-        ))}
-      </div>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() =>
+                handleCategory(activeCategory === cat ? null : cat)
+              }
+              className={`filter-pill rounded-md px-2.5 py-1 text-[11px] ${
+                activeCategory === cat ? "filter-pill-active" : ""
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-      {/* Chain filters */}
-      <div className="mt-2 flex flex-wrap gap-2">
-        <button
-          onClick={() => handleChain(null)}
-          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-            !activeChain
-              ? "border-indigo-500 bg-indigo-500/20 text-indigo-300"
-              : "border-zinc-700 text-zinc-400 hover:border-zinc-600"
-          }`}
-        >
-          All Chains
-        </button>
-        {chains.map((chain) => (
+        {/* Chains */}
+        <div className="flex flex-wrap gap-1.5">
+          <span
+            className="mr-1 self-center text-[10px] uppercase tracking-widest text-[var(--text-muted)]"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            chain
+          </span>
           <button
-            key={chain}
-            onClick={() =>
-              handleChain(activeChain === chain ? null : chain)
-            }
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-              activeChain === chain
-                ? "border-indigo-500 bg-indigo-500/20 text-indigo-300"
-                : "border-zinc-700 text-zinc-400 hover:border-zinc-600"
+            onClick={() => handleChain(null)}
+            className={`filter-pill rounded-md px-2.5 py-1 text-[11px] ${
+              !activeChain ? "filter-pill-active" : ""
             }`}
           >
-            {chain}
+            All
           </button>
-        ))}
+          {chains.map((chain) => (
+            <button
+              key={chain}
+              onClick={() =>
+                handleChain(activeChain === chain ? null : chain)
+              }
+              className={`filter-pill rounded-md px-2.5 py-1 text-[11px] ${
+                activeChain === chain ? "filter-pill-active" : ""
+              }`}
+            >
+              {chain}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Results count */}
-      <p className="mt-4 text-sm text-zinc-500">
-        {filtered.length} skill{filtered.length !== 1 ? "s" : ""}
-        {activeCategory ? ` in ${activeCategory}` : ""}
-        {activeChain ? ` on ${activeChain}` : ""}
-      </p>
+      {/* Result count */}
+      <div className="mt-5 flex items-center gap-3 border-b border-[var(--border)] pb-4">
+        <span
+          className="text-xs text-[var(--text-muted)]"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+          {activeCategory ? ` / ${activeCategory}` : ""}
+          {activeChain ? ` / ${activeChain}` : ""}
+        </span>
+      </div>
 
       {/* Grid */}
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((skill) => (
-          <SkillCard key={skill.name} skill={skill} />
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((skill, i) => (
+          <SkillCard key={skill.name} skill={skill} index={i} />
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-12 text-center text-zinc-500">
-          No skills match your search.
-        </p>
+        <div className="flex flex-col items-center py-24 text-center">
+          <div
+            className="text-4xl text-[var(--text-muted)]"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            _
+          </div>
+          <p className="mt-4 text-sm text-[var(--text-muted)]">
+            No skills match your search.
+          </p>
+        </div>
       )}
     </div>
   );

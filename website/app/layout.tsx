@@ -1,10 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Unbounded, JetBrains_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const unbounded = Unbounded({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-display",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -13,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | CryptoSkills",
   },
   description:
-    "Open-source agent skills directory covering 93 protocols across Ethereum, Solana, L2s, DeFi, NFTs, and more. Production-ready code for AI coding agents.",
+    "Open-source agent skills directory covering 96 protocols across Ethereum, Solana, L2s, DeFi, NFTs, and more. Production-ready code for AI coding agents.",
   metadataBase: new URL("https://cryptoskills.sh"),
   openGraph: {
     type: "website",
@@ -31,7 +44,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html
+      lang="en"
+      className={`${unbounded.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}
+    >
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

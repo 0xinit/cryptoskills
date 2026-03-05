@@ -1,61 +1,259 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-hover: #27272a;
-  --border: #27272a;
-  --muted: #a1a1aa;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  --bg: #06060a;
+  --surface: #0c0c12;
+  --surface-hover: #12121a;
+  --border: #1a1a24;
+  --border-hover: #2a2a36;
+  --text-primary: #e2e2e8;
+  --text-secondary: #6e6e7a;
+  --text-muted: #44444e;
+  --accent: #e8384f;
+  --accent-dim: #d42f45;
+  --accent-glow: rgba(232, 56, 79, 0.08);
+  --accent-border: rgba(232, 56, 79, 0.25);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 256px;
+  pointer-events: none;
+}
+
+/* Grid pattern background */
+.grid-bg {
+  position: relative;
+}
+.grid-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: 0.4;
+}
+
+/* Staggered card animations */
+.card-animate {
+  animation: fade-up 0.5s ease both;
+}
+
+/* Accent glow line */
+.glow-line {
+  position: relative;
+}
+.glow-line::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent 80%);
+  opacity: 0.3;
+}
+
+/* Command palette search styling */
+.search-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-glow), inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  outline: none;
+}
+
+/* Card left accent border */
+.skill-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: all 0.25s ease;
+}
+
+.skill-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.skill-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.skill-card:hover::before {
+  opacity: 1;
+}
+
+/* Filter pills */
+.filter-pill {
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+.filter-pill:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.filter-pill-active {
+  border-color: var(--accent-border) !important;
+  background: var(--accent-glow) !important;
+  color: var(--accent) !important;
+}
+
+/* Stat counter */
+.stat-value {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* Syntax highlighting overrides */
 [data-rehype-pretty-code-figure] pre {
-  @apply overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm leading-relaxed;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #08080e !important;
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 [data-rehype-pretty-code-figure] code {
-  @apply grid;
+  display: grid;
 }
 
 [data-rehype-pretty-code-figure] [data-line] {
-  @apply px-1;
+  padding: 0 4px;
 }
 
 /* Inline code */
 :not(pre) > code {
-  @apply rounded bg-zinc-800 px-1.5 py-0.5 text-sm text-zinc-200;
+  border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  font-size: 0.85em;
+  color: var(--accent-dim);
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
-/* Prose overrides for dark mode */
+/* Prose overrides */
 .prose {
-  --tw-prose-body: #d4d4d8;
-  --tw-prose-headings: #fafafa;
-  --tw-prose-links: #818cf8;
-  --tw-prose-bold: #fafafa;
-  --tw-prose-code: #e4e4e7;
-  --tw-prose-pre-bg: #09090b;
-  --tw-prose-td-borders: #3f3f46;
-  --tw-prose-th-borders: #52525b;
+  --tw-prose-body: #b4b4be;
+  --tw-prose-headings: #e2e2e8;
+  --tw-prose-links: var(--accent-dim);
+  --tw-prose-bold: #e2e2e8;
+  --tw-prose-code: var(--accent-dim);
+  --tw-prose-pre-bg: #08080e;
+  --tw-prose-td-borders: var(--border);
+  --tw-prose-th-borders: var(--border-hover);
+}
+
+.prose a {
+  text-decoration-color: rgba(212, 47, 69, 0.3);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.prose a:hover {
+  text-decoration-color: var(--accent-dim);
 }
 
 .prose table {
-  @apply text-sm;
+  font-size: 0.85rem;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
 }
 
 .prose th {
-  @apply text-left font-semibold text-zinc-200;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .prose td {
-  @apply text-zinc-400;
+  color: var(--text-secondary);
+}
+
+.prose h2 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose h2 a,
+.prose h3 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
