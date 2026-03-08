@@ -118,6 +118,14 @@ async function installSkill(slug, agents, baseDir) {
     installed++;
   }
 
+  if (installed > 0) {
+    fetch(`${API}/api/stats/${slug}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "download" }),
+    }).catch(() => {});
+  }
+
   return installed;
 }
 
