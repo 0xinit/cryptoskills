@@ -4,6 +4,7 @@ import { getAllSkills, getSkillBySlug } from "@/lib/registry";
 import { getSkillContent, getSkillExamples } from "@/lib/skills";
 import { renderMarkdown, stripFrontmatter } from "@/lib/markdown";
 import { InstallButtons } from "@/components/install-buttons";
+import { ViewTracker } from "@/components/view-tracker";
 import type { Metadata } from "next";
 
 export const dynamicParams = false;
@@ -86,6 +87,7 @@ export default async function SkillPage({
   return (
     <div className="grid-bg min-h-screen">
       <main className="mx-auto max-w-4xl px-5 py-12 sm:px-8 lg:px-12">
+        <ViewTracker slug={slug} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
