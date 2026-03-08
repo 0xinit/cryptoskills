@@ -1,6 +1,6 @@
 {
   "name": "cryptoskills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Install crypto agent skills from cryptoskills.dev",
   "bin": {
     "cryptoskills": "bin/cryptoskills.js"
