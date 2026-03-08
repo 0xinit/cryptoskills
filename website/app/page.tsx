@@ -1,5 +1,6 @@
 import { getAllSkills, getAllCategories, getAllChains } from "@/lib/registry";
 import { SkillGrid } from "@/components/skill-grid";
+import { CommandBar } from "@/components/command-bar";
 
 export default function Home() {
   const skills = getAllSkills();
@@ -83,6 +84,9 @@ export default function Home() {
             </div>
           </div>
         </header>
+
+        {/* Install command */}
+        <CommandBar />
 
         {/* Grid */}
         <section className="pb-24">
