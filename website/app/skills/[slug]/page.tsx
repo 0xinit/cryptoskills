@@ -40,22 +40,33 @@ export async function generateMetadata({
   };
 }
 
+const GITHUB_BASE =
+  "https://github.com/0xinit/cryptoskills/tree/main/skills";
+
 const STAT_ITEMS = [
   {
     key: "hasExamples" as const,
     label: "Examples",
     color: "text-emerald-400",
+    dir: "examples",
   },
-  { key: "hasDocs" as const, label: "Docs", color: "text-blue-400" },
+  {
+    key: "hasDocs" as const,
+    label: "Docs",
+    color: "text-blue-400",
+    dir: "docs",
+  },
   {
     key: "hasResources" as const,
     label: "Resources",
     color: "text-amber-400",
+    dir: "resources",
   },
   {
     key: "hasTemplates" as const,
     label: "Templates",
     color: "text-violet-400",
+    dir: "templates",
   },
 ];
 
@@ -155,12 +166,18 @@ export default async function SkillPage({
             {STAT_ITEMS.map(
               (item) =>
                 skill[item.key] && (
-                  <div key={item.key} className="flex items-center gap-2">
+                  <a
+                    key={item.key}
+                    href={`${GITHUB_BASE}/${slug}/${item.dir}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 transition-colors hover:opacity-80"
+                  >
                     <span
                       className={`h-1.5 w-1.5 rounded-full ${item.color}`}
                     />
                     <span
-                      className="text-xs text-[var(--text-secondary)]"
+                      className="text-xs text-[var(--text-secondary)] underline decoration-[var(--border)] underline-offset-2 transition-colors hover:decoration-[var(--text-secondary)]"
                       style={{ fontFamily: "var(--font-mono)" }}
                     >
                       {item.label}
@@ -168,7 +185,7 @@ export default async function SkillPage({
                         ? ` (${examples.length})`
                         : ""}
                     </span>
-                  </div>
+                  </a>
                 )
             )}
           </div>
