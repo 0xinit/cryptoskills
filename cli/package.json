@@ -1,0 +1,32 @@
+{
+  "name": "cryptoskills",
+  "version": "0.1.0",
+  "description": "Install crypto agent skills from cryptoskills.dev",
+  "bin": {
+    "cryptoskills": "bin/cryptoskills.js"
+  },
+  "files": [
+    "bin/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "crypto",
+    "web3",
+    "agent",
+    "skills",
+    "claude",
+    "cursor",
+    "solidity",
+    "ethereum",
+    "solana",
+    "defi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xinit/cryptoskills.git"
+  },
+  "homepage": "https://cryptoskills.dev",
+  "license": "Apache-2.0"
+}
