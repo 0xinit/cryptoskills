@@ -5,6 +5,10 @@ Install crypto agent skills from [cryptoskills.dev](https://cryptoskills.dev).
 [![npm](https://img.shields.io/npm/v/cryptoskills.svg)](https://www.npmjs.com/package/cryptoskills)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/0xinit/cryptoskills/blob/main/LICENSE)
 
+```bash
+npx cryptoskills install --all
+```
+
 95 protocol-level skills covering DeFi, infrastructure, security, dev tools, trading, AI agents, and more — across Ethereum, Solana, L2s, and alt-L1s.
 
 ## Quick Start
@@ -33,6 +37,50 @@ npx cryptoskills install foundry -a cursor
 # Global install (home directory)
 npx cryptoskills install solidity-security -g
 ```
+
+### find
+
+```bash
+# Search by name or keyword
+npx cryptoskills find uniswap
+
+# Search descriptions
+npx cryptoskills find "lending"
+
+# Filter by chain
+npx cryptoskills find dex --chain solana
+
+# Filter by category
+npx cryptoskills find swap --category DeFi
+```
+
+### update
+
+```bash
+# Update all installed skills
+npx cryptoskills update
+
+# Update specific skills
+npx cryptoskills update uniswap
+
+# Update for a specific agent
+npx cryptoskills update -a cursor
+
+# Update global installs
+npx cryptoskills update -g
+```
+
+### init
+
+```bash
+# Interactive project setup
+npx cryptoskills init
+
+# Target a specific agent
+npx cryptoskills init -a cursor
+```
+
+Walks you through selecting categories and chains, then installs matching skills to your project.
 
 ### list
 
