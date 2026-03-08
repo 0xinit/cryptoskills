@@ -53,7 +53,7 @@ For querying prediction market data:
 - **WebSocket** - Streaming price and orderbook updates
 
 ### Authentication
-Most endpoints require an API key via the `x-api-key` header. Contact `hello@dflow.net` to obtain credentials.
+Most endpoints require an API key via the `x-api-key` header. Get your API key at [pond.dflow.net/build/api-key](https://pond.dflow.net/build/api-key).
 
 ## Quick Start
 
@@ -498,6 +498,93 @@ const swap = await fetch(`${API_BASE}/swap`, {
 }).then(r => r.json());
 ```
 
+## Wallet Integration (Phantom)
+
+DFlow provides a [Phantom Connect skill](https://github.com/DFlowProtocol/dflow_phantom-connect-skill) for wallet-integrated dApp development. Use `@phantom/react-sdk` to connect wallets before calling the Swap or Trade APIs.
+
+### Connect Wallet
+
+```typescript
+import { PhantomProvider } from "@phantom/react-sdk";
+
+function App() {
+  return (
+    <PhantomProvider>
+      <SwapInterface />
+    </PhantomProvider>
+  );
+}
+```
+
+### Sign and Send DFlow Swap
+
+```typescript
+import { usePhantom } from "@phantom/react-sdk";
+import { VersionedTransaction } from "@solana/web3.js";
+
+const API_BASE = "https://quote-api.dflow.net";
+
+async function executeSwap(inputMint: string, outputMint: string, amount: string) {
+  const { provider } = usePhantom();
+  if (!provider?.publicKey) throw new Error("Wallet not connected");
+
+  const orderParams = new URLSearchParams({
+    inputMint,
+    outputMint,
+    amount,
+    slippageBps: "50",
+    userPublicKey: provider.publicKey.toBase58(),
+  });
+
+  const order = await fetch(`${API_BASE}/order?${orderParams}`, {
+    headers: { "x-api-key": process.env.NEXT_PUBLIC_DFLOW_API_KEY! },
+  }).then(r => r.json());
+
+  const tx = VersionedTransaction.deserialize(
+    Buffer.from(order.transaction, "base64")
+  );
+
+  // Phantom signs and sends in one step
+  const { signature } = await provider.signAndSendTransaction(tx);
+  return signature;
+}
+```
+
+### Browser Extension (No Framework)
+
+```typescript
+const getProvider = (): PhantomSolana | undefined => {
+  if ("phantom" in window) {
+    const provider = (window as any).phantom?.solana;
+    if (provider?.isPhantom) return provider;
+  }
+  // Redirect to install if not found
+  window.open("https://phantom.app/", "_blank");
+};
+
+async function connectAndSwap() {
+  const provider = getProvider();
+  if (!provider) return;
+
+  const { publicKey } = await provider.connect();
+
+  // Now use publicKey with DFlow APIs
+  const order = await fetch(`${API_BASE}/order?${new URLSearchParams({
+    inputMint: SOL,
+    outputMint: USDC,
+    amount: "1000000000",
+    userPublicKey: publicKey.toBase58(),
+  })}`, { headers: { "x-api-key": API_KEY } }).then(r => r.json());
+
+  const tx = VersionedTransaction.deserialize(
+    Buffer.from(order.transaction, "base64")
+  );
+
+  const { signature } = await provider.signAndSendTransaction(tx);
+  return signature;
+}
+```
+
 ## DFlow Swap Orchestrator
 
 The DFlow Swap Orchestrator contract manages declarative swap execution:
@@ -787,6 +874,6 @@ dflow/
 ## Resources
 
 - [DFlow Documentation](https://pond.dflow.net)
-- [API Keys](mailto:hello@dflow.net)
+- [API Keys](https://pond.dflow.net/build/api-key)
 - [Discord Community](https://discord.gg/dflow)
-- [GitHub](https://github.com/dflow-protocol)
+- [GitHub](https://github.com/DFlowProtocol)
