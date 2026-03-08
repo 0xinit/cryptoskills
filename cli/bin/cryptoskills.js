@@ -2,9 +2,10 @@
 
 const fs = require("fs");
 const path = require("path");
+const readline = require("readline");
 
 const API = "https://cryptoskills.dev";
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 // ANSI colors
 const c = {
@@ -78,6 +79,27 @@ function resolveBaseDir(isGlobal) {
   return process.cwd();
 }
 
+function resolveAgents(args, baseDir) {
+  let targetAgents = args.agents;
+  if (targetAgents.length === 0) {
+    targetAgents = detectAgents(baseDir);
+    if (targetAgents.length === 0) {
+      targetAgents = ["claude-code"];
+      console.log(c.dim(`  No agent directories detected, defaulting to Claude Code`));
+    }
+  }
+
+  for (const a of targetAgents) {
+    if (!AGENTS[a]) {
+      console.error(c.red(`Unknown agent: ${a}`));
+      console.log(`Available: ${Object.keys(AGENTS).join(", ")}`);
+      process.exit(1);
+    }
+  }
+
+  return targetAgents;
+}
+
 async function installSkill(slug, agents, baseDir) {
   const content = await fetchSkill(slug);
   let installed = 0;
@@ -99,28 +121,73 @@ async function installSkill(slug, agents, baseDir) {
   return installed;
 }
 
+// --- Helpers for init ---
+
+function prompt(question) {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
+
+async function promptSelect(label, options) {
+  console.log(`\n  ${c.bold(label)}`);
+  options.forEach((opt, i) => {
+    console.log(`    ${c.cyan(String(i + 1).padStart(2))}  ${opt}`);
+  });
+  const answer = await prompt(`\n  Enter numbers (comma-separated) or ${c.cyan("all")}: `);
+  if (answer.toLowerCase() === "all") return options;
+  const indices = answer.split(",").map((s) => parseInt(s.trim(), 10) - 1);
+  return indices.filter((i) => i >= 0 && i < options.length).map((i) => options[i]);
+}
+
+// --- Helpers for find ---
+
+function scoreMatch(query, skill) {
+  const q = query.toLowerCase();
+  const name = skill.name.toLowerCase();
+  const desc = (skill.description || "").toLowerCase();
+  const tags = (skill.tags || []).map((t) => t.toLowerCase());
+
+  let score = 0;
+  if (name === q) score += 100;
+  else if (name.includes(q)) score += 60;
+  if (desc.includes(q)) score += 30;
+  for (const tag of tags) {
+    if (tag === q) { score += 40; break; }
+    if (tag.includes(q)) { score += 20; break; }
+  }
+  return score;
+}
+
+// --- Helpers for update ---
+
+function getInstalledSlugs(baseDir, agents) {
+  const slugs = new Set();
+  for (const agentId of agents) {
+    const info = AGENTS[agentId];
+    if (!info) continue;
+    const skillsDir = path.join(baseDir, info.dir);
+    if (!fs.existsSync(skillsDir)) continue;
+    const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isDirectory() && fs.existsSync(path.join(skillsDir, entry.name, "SKILL.md"))) {
+        slugs.add(entry.name);
+      }
+    }
+  }
+  return slugs;
+}
+
+// --- Commands ---
+
 async function cmdInstall(args) {
   const baseDir = resolveBaseDir(args.flags.global);
   const scope = args.flags.global ? "global" : "project";
-
-  let targetAgents = args.agents;
-  if (targetAgents.length === 0) {
-    targetAgents = detectAgents(baseDir);
-    if (targetAgents.length === 0) {
-      // Default to claude-code if no agents detected
-      targetAgents = ["claude-code"];
-      console.log(c.dim(`  No agent directories detected, defaulting to Claude Code`));
-    }
-  }
-
-  // Validate agent names
-  for (const a of targetAgents) {
-    if (!AGENTS[a]) {
-      console.error(c.red(`Unknown agent: ${a}`));
-      console.log(`Available: ${Object.keys(AGENTS).join(", ")}`);
-      process.exit(1);
-    }
-  }
+  const targetAgents = resolveAgents(args, baseDir);
 
   let slugs = args.skills;
 
@@ -175,7 +242,6 @@ async function cmdList(args) {
     return;
   }
 
-  // Group by category
   const groups = {};
   for (const s of skills) {
     (groups[s.category] ||= []).push(s);
@@ -186,7 +252,6 @@ async function cmdList(args) {
   for (const [category, items] of Object.entries(groups).sort()) {
     console.log(`  ${c.cyan(category)}`);
     const names = items.map((s) => s.name).sort();
-    // Wrap at ~80 chars
     let line = "    ";
     for (let i = 0; i < names.length; i++) {
       const sep = i < names.length - 1 ? ", " : "";
@@ -201,6 +266,170 @@ async function cmdList(args) {
   }
 }
 
+async function cmdFind(args) {
+  const query = args.skills.join(" ");
+  if (!query) {
+    console.error(c.red("No search query provided."));
+    console.log(`Usage: ${c.cyan('cryptoskills find "lending"')}`);
+    process.exit(1);
+  }
+
+  console.log(c.dim("Searching registry...\n"));
+  const registry = await fetchRegistry();
+  let skills = registry.skills;
+
+  if (args.flags.category) {
+    const cat = args.flags.category.toLowerCase();
+    skills = skills.filter((s) => s.category.toLowerCase() === cat);
+  }
+  if (args.flags.chain) {
+    const chain = args.flags.chain.toLowerCase();
+    skills = skills.filter((s) => s.chain.toLowerCase() === chain);
+  }
+
+  const scored = skills
+    .map((s) => ({ ...s, score: scoreMatch(query, s) }))
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20);
+
+  if (scored.length === 0) {
+    console.log(c.yellow(`No skills matching "${query}".`));
+    return;
+  }
+
+  console.log(`  ${c.bold(scored.length)} result${scored.length !== 1 ? "s" : ""} for "${query}"\n`);
+
+  for (const s of scored) {
+    const chain = c.dim(`[${s.chain}]`);
+    const desc = (s.description || "").slice(0, 60);
+    console.log(`  ${c.cyan(s.name.padEnd(24))} ${chain.padEnd(30)} ${c.dim(desc)}`);
+  }
+
+  console.log(`\n  ${c.dim("Install:")} ${c.cyan(`npx cryptoskills install ${scored[0].name}`)}`);
+}
+
+async function cmdUpdate(args) {
+  const baseDir = resolveBaseDir(args.flags.global);
+  const scope = args.flags.global ? "global" : "project";
+  const targetAgents = resolveAgents(args, baseDir);
+
+  let slugs;
+
+  if (args.skills.length > 0) {
+    slugs = args.skills;
+  } else {
+    const installed = getInstalledSlugs(baseDir, targetAgents);
+    if (installed.size === 0) {
+      console.log(c.yellow("No installed skills found to update."));
+      console.log(`Install skills first: ${c.cyan("npx cryptoskills install --all")}`);
+      return;
+    }
+    slugs = [...installed];
+  }
+
+  console.log(`Updating ${c.bold(slugs.length)} skill${slugs.length > 1 ? "s" : ""} (${scope})...\n`);
+
+  let updated = 0;
+  let failures = 0;
+
+  for (const slug of slugs) {
+    console.log(`  ${c.cyan(slug)}`);
+    try {
+      await installSkill(slug, targetAgents, baseDir);
+      updated++;
+    } catch (err) {
+      console.log(`  ${c.red("✗")} ${err.message}`);
+      failures++;
+    }
+  }
+
+  console.log(
+    `\n${c.green("Done.")} ${updated} skill${updated !== 1 ? "s" : ""} updated` +
+      (failures > 0 ? `, ${c.red(`${failures} failed`)}` : "") +
+      "."
+  );
+}
+
+async function cmdInit(args) {
+  const baseDir = process.cwd();
+
+  console.log(c.dim("Fetching skill registry...\n"));
+  const registry = await fetchRegistry();
+  const skills = registry.skills;
+
+  const categories = [...new Set(skills.map((s) => s.category))].sort();
+  const chains = [...new Set(skills.map((s) => s.chain))].sort();
+
+  const selectedCategories = await promptSelect("Which categories?", categories);
+  if (selectedCategories.length === 0) {
+    console.log(c.yellow("\nNo categories selected. Aborting."));
+    return;
+  }
+
+  const selectedChains = await promptSelect("Which chains?", chains);
+  if (selectedChains.length === 0) {
+    console.log(c.yellow("\nNo chains selected. Aborting."));
+    return;
+  }
+
+  const catSet = new Set(selectedCategories.map((c) => c.toLowerCase()));
+  const chainSet = new Set(selectedChains.map((c) => c.toLowerCase()));
+
+  const matching = skills.filter(
+    (s) => catSet.has(s.category.toLowerCase()) && chainSet.has(s.chain.toLowerCase())
+  );
+
+  if (matching.length === 0) {
+    console.log(c.yellow("\nNo skills match your selections."));
+    return;
+  }
+
+  let targetAgents = args.agents;
+  if (targetAgents.length === 0) {
+    targetAgents = detectAgents(baseDir);
+    if (targetAgents.length === 0) {
+      targetAgents = ["claude-code"];
+      console.log(c.dim(`\n  No agents detected, defaulting to Claude Code`));
+    } else if (targetAgents.length > 1) {
+      const selected = await promptSelect(
+        "Multiple agents detected. Which to install for?",
+        targetAgents
+      );
+      targetAgents = selected.length > 0 ? selected : targetAgents;
+    }
+  }
+
+  const confirm = await prompt(
+    `\n  Install ${c.bold(matching.length)} skills for ${targetAgents.map((a) => AGENTS[a].label).join(", ")}? [y/N] `
+  );
+
+  if (confirm.toLowerCase() !== "y") {
+    console.log(c.dim("Aborted."));
+    return;
+  }
+
+  console.log();
+  let totalInstalled = 0;
+  let failures = 0;
+
+  for (const skill of matching) {
+    console.log(`  ${c.cyan(skill.name)}`);
+    try {
+      totalInstalled += await installSkill(skill.name, targetAgents, baseDir);
+    } catch (err) {
+      console.log(`  ${c.red("✗")} ${err.message}`);
+      failures++;
+    }
+  }
+
+  console.log(
+    `\n${c.green("Done.")} ${totalInstalled} file${totalInstalled !== 1 ? "s" : ""} written` +
+      (failures > 0 ? `, ${c.red(`${failures} failed`)}` : "") +
+      "."
+  );
+}
+
 function printHelp() {
   console.log(`
 ${c.bold("cryptoskills")} ${c.dim(`v${VERSION}`)} — crypto agent skills from ${c.cyan("cryptoskills.dev")}
@@ -208,21 +437,26 @@ ${c.bold("cryptoskills")} ${c.dim(`v${VERSION}`)} — crypto agent skills from $
 ${c.bold("Commands:")}
   install <skill> [...]   Install one or more skills
   install --all           Install all skills
+  find <query>            Search skills by name, description, or tags
+  update [skill...]       Re-download installed skills to get latest content
+  init                    Interactive project setup — pick categories & chains
   list                    List available skills
 
 ${c.bold("Options:")}
   -a, --agent <name>      Target agent (claude-code, cursor, codex, opencode)
   -g, --global            Install to home directory instead of project
-  --category <name>       Filter by category (list command)
-  --chain <name>          Filter by chain (list command)
+  --category <name>       Filter by category (list, find)
+  --chain <name>          Filter by chain (list, find)
   -h, --help              Show this help
 
 ${c.bold("Examples:")}
   ${c.dim("$")} npx cryptoskills install aave
-  ${c.dim("$")} npx cryptoskills install aave uniswap compound
   ${c.dim("$")} npx cryptoskills install --all -a claude-code
+  ${c.dim("$")} npx cryptoskills find "lending"
+  ${c.dim("$")} npx cryptoskills find dex --chain solana
+  ${c.dim("$")} npx cryptoskills update
+  ${c.dim("$")} npx cryptoskills init
   ${c.dim("$")} npx cryptoskills list --category DeFi
-  ${c.dim("$")} npx cryptoskills list --chain solana
 `);
 }
 
@@ -245,6 +479,18 @@ async function main() {
     case "list":
     case "ls":
       await cmdList(args);
+      break;
+    case "find":
+    case "search":
+    case "s":
+      await cmdFind(args);
+      break;
+    case "update":
+    case "u":
+      await cmdUpdate(args);
+      break;
+    case "init":
+      await cmdInit(args);
       break;
     default:
       console.error(c.red(`Unknown command: ${args.command}`));
