@@ -17,6 +17,41 @@
   50% { opacity: 1; }
 }
 
+@keyframes command-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes command-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.command-text {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.command-enter {
+  animation: command-enter 0.3s ease both;
+}
+
+.command-exit {
+  animation: command-exit 0.3s ease both;
+}
+
 :root {
   --bg: #06060a;
   --surface: #0e0e16;
