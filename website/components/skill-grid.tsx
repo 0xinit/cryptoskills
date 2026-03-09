@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import type { RegistrySkill } from "@/lib/registry";
+import { useState, useCallback, useEffect } from "react";
+import type { RegistrySkill, SkillStats } from "@/lib/registry";
 import { SkillCard } from "./skill-card";
 import { Search } from "./search";
 
@@ -12,11 +12,19 @@ interface SkillGridProps {
 }
 
 export function SkillGrid({ skills, categories, chains }: SkillGridProps) {
+  const [stats, setStats] = useState<Record<string, SkillStats>>({});
   const [filtered, setFiltered] = useState<RegistrySkill[]>(skills);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeChain, setActiveChain] = useState<string | null>(null);
   const [searchResults, setSearchResults] =
     useState<RegistrySkill[]>(skills);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((data: Record<string, SkillStats>) => setStats(data))
+      .catch(() => {});
+  }, []);
 
   const applyFilters = useCallback(
     (
@@ -140,7 +148,7 @@ export function SkillGrid({ skills, categories, chains }: SkillGridProps) {
       {/* Grid */}
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((skill, i) => (
-          <SkillCard key={skill.name} skill={skill} index={i} />
+          <SkillCard key={skill.name} skill={skill} index={i} stats={stats[skill.name]} />
         ))}
       </div>
 

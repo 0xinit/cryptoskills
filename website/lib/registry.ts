@@ -41,6 +41,11 @@ export function getRegistry(): Registry {
   return cachedRegistry!;
 }
 
+export interface SkillStats {
+  views: number;
+  downloads: number;
+}
+
 export function getAllSkills(): RegistrySkill[] {
   return getRegistry().skills;
 }

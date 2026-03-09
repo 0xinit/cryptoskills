@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@upstash/redis": "^1.36.3",
     "fuse.js": "^7.0.0",
     "gray-matter": "^4.0.3",
     "next": "^15.1.0",
