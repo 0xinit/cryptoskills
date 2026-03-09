@@ -102,7 +102,7 @@
     {
       "name": "crypto-skill-creator",
       "source": "./skills/crypto-skill-creator",
-      "description": "Step-by-step guide for creating enriched CryptoSkills agent skills. Covers the full pattern — SKILL.md structure, YAML frontmatter, examples, docs, resources, templates, marketplace registration, and validation. Use this to create skills that match the quality and consistency of the 95+ existing skills in the directory.",
+      "description": ">-",
       "category": "Dev Tools"
     },
     {
@@ -488,6 +488,12 @@
       "source": "./skills/solana-simd",
       "description": "Solana Improvement Documents reference — accounts model, PDAs, CPIs, Token Extensions (Token-2022), priority fees (SIMD-0096), address lookup tables, versioned transactions, rent mechanics, and key SIMD proposals (0033 fee markets, 0047 syscall, 0096 priority fees, 0172 staking).",
       "category": "Infrastructure"
+    },
+    {
+      "name": "solidity-auditor",
+      "source": "./skills/solidity-auditor",
+      "description": "Security audit of Solidity code while you develop. Trigger on \"audit\", \"check this contract\", \"review for security\". Modes - default (full repo), DEEP (+ adversarial reasoning), or a specific filename.",
+      "category": "Security"
     },
     {
       "name": "solidity-security",
