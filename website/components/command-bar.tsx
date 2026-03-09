@@ -40,7 +40,7 @@ export function CommandBar() {
   const rest = cmd.text.slice(prefix.length);
 
   return (
-    <div className="mb-8 flex justify-start">
+    <div className="flex justify-start">
       <button
         type="button"
         onClick={handleCopy}

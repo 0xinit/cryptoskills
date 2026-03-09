@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getAllSkills, getAllCategories, getAllChains } from "@/lib/registry";
 import { SkillGrid } from "@/components/skill-grid";
 import { CommandBar } from "@/components/command-bar";
@@ -83,8 +84,29 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Install command */}
-        <CommandBar />
+        {/* Install command + contribute button */}
+        <div className="mb-8 flex items-center justify-between">
+          <CommandBar />
+          <Link
+            href="/contribute"
+            className="filter-pill hidden items-center gap-2 rounded-md px-4 py-2.5 text-xs transition-all hover:border-[var(--accent-border)] hover:text-[var(--accent)] sm:inline-flex"
+          >
+            <svg
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Create Your Own
+          </Link>
+        </div>
 
         {/* Grid */}
         <section className="pb-24">
