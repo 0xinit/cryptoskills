@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { getRedis } from "@/lib/redis";
 import { getAllSkills } from "@/lib/registry";
 import type { SkillStats } from "@/lib/registry";
 
 export async function GET(): Promise<NextResponse> {
+  const redis = getRedis();
+  if (!redis) return NextResponse.json({});
+
   const skills = getAllSkills();
   const slugs = skills.map((s) => s.name);
 
