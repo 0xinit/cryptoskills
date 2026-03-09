@@ -100,6 +100,12 @@
       "category": "Infrastructure"
     },
     {
+      "name": "crypto-skill-creator",
+      "source": "./skills/crypto-skill-creator",
+      "description": "Step-by-step guide for creating enriched CryptoSkills agent skills. Covers the full pattern — SKILL.md structure, YAML frontmatter, examples, docs, resources, templates, marketplace registration, and validation. Use this to create skills that match the quality and consistency of the 95+ existing skills in the directory.",
+      "category": "Dev Tools"
+    },
+    {
       "name": "curve",
       "source": "./skills/curve",
       "description": "Curve Finance AMM — StableSwap pools for pegged assets, CryptoSwap (Tricrypto) for volatile pairs, crvUSD stablecoin with LLAMMA soft-liquidation, gauge voting for CRV emissions, factory pools, and LP token staking. Covers pool interfaces (exchange, add_liquidity, remove_liquidity), Router for optimal routing, and gauge system across Ethereum mainnet.",
