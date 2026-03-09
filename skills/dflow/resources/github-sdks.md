@@ -443,4 +443,4 @@ All DFlow repositories accept contributions. See individual repository README fi
 3. Make changes with tests
 4. Submit a pull request
 
-**Contact:** hello@dflow.net
+**Contact:** [pond.dflow.net/build/api-key](https://pond.dflow.net/build/api-key)

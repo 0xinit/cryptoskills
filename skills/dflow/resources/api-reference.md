@@ -18,7 +18,7 @@ const headers = {
 };
 ```
 
-Contact `hello@dflow.net` to obtain an API key.
+Get your API key at [pond.dflow.net/build/api-key](https://pond.dflow.net/build/api-key).
 
 ---
 

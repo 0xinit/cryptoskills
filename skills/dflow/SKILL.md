@@ -594,6 +594,53 @@ Program ID: DF1ow3DqMj3HvTj8i8J9yM2hE9hCrLLXpdbaKZu4ZPnz
 
 ---
 
+## MCP Server
+
+DFlow provides a [Model Context Protocol server](https://pond.dflow.net/build/mcp) that gives AI tools direct access to current API methods, parameters, and working examples.
+
+**Server URL:** `https://pond.dflow.net/mcp`
+
+### Available Resources
+- Trading API (orders, imperative/declarative endpoints, parameters)
+- Metadata API (market discovery, orderbooks, candlesticks, websockets)
+- Proof API (KYC verification endpoints)
+- Code Recipes (implementation patterns for common use cases)
+- Concepts (routing, slippage, priority fees, platform fees)
+- FAQ (troubleshooting and debugging)
+
+### Setup
+
+**Claude Code:**
+```bash
+claude mcp add --transport http DFlow https://pond.dflow.net/mcp
+```
+
+**Cursor / VS Code / Windsurf** — add to your MCP config:
+```json
+{
+  "mcpServers": {
+    "DFlow": {
+      "type": "http",
+      "url": "https://pond.dflow.net/mcp"
+    }
+  }
+}
+```
+
+Or add to project `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "DFlow": {
+      "type": "http",
+      "url": "https://pond.dflow.net/mcp"
+    }
+  }
+}
+```
+
+---
+
 ## Prediction Market Metadata API
 
 The Prediction Market Metadata API provides comprehensive access to prediction market information.
