@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAllSkills, getSkillBySlug } from "@/lib/registry";
 import { getSkillContent, getSkillExamples } from "@/lib/skills";
 import { renderMarkdown, stripFrontmatter } from "@/lib/markdown";
+import { InstallButtons } from "@/components/install-buttons";
 import type { Metadata } from "next";
 
 export const dynamicParams = false;
@@ -170,6 +171,9 @@ export default async function SkillPage({
             )}
           </div>
         </header>
+
+        {/* Install options */}
+        <InstallButtons slug={slug} skillContent={rawContent} />
 
         {/* Rendered SKILL.md */}
         <article
