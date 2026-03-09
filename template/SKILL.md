@@ -1,7 +1,12 @@
 ---
 name: protocol-name
-description: One-line description of what this skill does and when to use it. Include protocol name, key actions (swaps, lending, staking), and supported chains.
+description: >-
+  What this skill does and when to use it. Include protocol name,
+  key actions (swaps, lending, staking), and supported chains.
+  Add trigger phrases for agent activation (e.g., "Use when swapping tokens").
+  Under 1024 characters.
 license: Apache-2.0
+compatibility: Claude Code, Cursor, Windsurf, Cline
 metadata:
   author: your-github-username
   version: "1.0"

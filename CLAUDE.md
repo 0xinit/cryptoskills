@@ -33,8 +33,12 @@ Every SKILL.md must have YAML frontmatter:
 ```yaml
 ---
 name: protocol-name
-description: What this does and when to use it (under 1024 chars)
+description: >-
+  What this does + when to use it + trigger phrases (under 1024 chars).
+  Example: "Integrate Uniswap V3 for token swaps. Use when building DEX
+  integrations or executing swaps on Ethereum, Arbitrum, Base."
 license: Apache-2.0
+compatibility: Claude Code, Cursor, Windsurf, Cline  # optional, 1-500 chars
 metadata:
   author: github-username
   version: "1.0"
@@ -42,6 +46,12 @@ metadata:
   category: DeFi | Infrastructure | Dev Tools | Trading | Oracles | Cross-Chain | Security | L2 & Alt-L1 | Frontend | AI Agents | DevOps
 tags:
   - relevant-tags
+# Optional — declare tool requirements and MCP dependencies:
+# allowed-tools: [Bash, Read, Write, Edit, WebFetch]
+# mcp-server:
+#   name: protocol-mcp
+#   transport: http
+#   url: https://api.protocol.com/mcp
 ---
 ```
 
