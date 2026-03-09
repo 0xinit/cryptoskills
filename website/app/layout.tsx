@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Unbounded, JetBrains_Mono, DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const unbounded = Unbounded({
@@ -48,7 +49,10 @@ export default function RootLayout({
       lang="en"
       className={`${unbounded.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
