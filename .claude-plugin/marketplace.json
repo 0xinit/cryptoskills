@@ -586,6 +586,12 @@
       "category": "AI Agents"
     },
     {
+      "name": "zerodust",
+      "source": "./skills/zerodust",
+      "description": "ZeroDust chain exit infrastructure — sweep 100% of native gas tokens (ETH, BNB, MATIC, etc.) from 25 EVM chains via EIP-7702 sponsored execution, leaving exactly zero balance. Covers TypeScript SDK with ZeroDustAgent for automated sweeps, REST API for quotes and submissions, MCP server for AI tool calls, and Agent API with batch operations. Free for balances under $1.",
+      "category": "Cross-Chain"
+    },
+    {
       "name": "zksync",
       "source": "./skills/zksync",
       "description": "zkSync Era development — ZK-specific deployment patterns, native account abstraction, paymasters for gasless transactions, system contracts, and EVM differences.",
